@@ -7,6 +7,7 @@ class UserService {
     async getUsers(): Promise<User[]> {
         try {
             const response = await axios.get<User[]>(API_URL);
+
             return response.data;
         } catch (error) {
             console.error("Error al obtener usuarios:", error);

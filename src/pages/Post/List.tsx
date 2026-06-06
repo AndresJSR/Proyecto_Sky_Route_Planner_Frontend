@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { User } from '../../models/User';
+import { Post } from '../../models/Post';
 import GenericTable from '../../components/GenericTable';
-import { userService } from '../../services/userService';
+import { postService } from '../../services/postService';
 import Swal from 'sweetalert2';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const Users: React.FC = () => {
+const Posts: React.FC = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState<User[]>([]);
+  const [data, setData] = useState<Post[]>([]);
 
-  // 🔹 Llamar `fetchData` cuando el componente se monta
   useEffect(() => {
     fetchData();
   }, []);
 
-  // 🔹 Obtiene los datos de los usuarios
   const fetchData = async () => {
-    const users = await userService.getUsers();
-    console.log(users)
-    setData(users);
+    const posts = await postService.getPosts();
+    console.log(posts)
+    setData(posts);
   };
 
-  const handleAction = (action: string, item: User) => {
+  const handleAction = (action: string, item: Post) => {
     if (action === 'edit') {
-      console.log('Edit user:', item);
-      navigate(`/users/update/${item.id}`);
+      console.log('Edit post:', item);
+      navigate(`/posts/update/${item.id}`);
     } else if (action === 'delete') {
-      console.log('Delete user:', item);
-      deleteUser(item.id ? item.id : 0);
+      console.log('Delete post:', item);
+      deletePost(item.id ? item.id : 0);
     }
   };
 
-  const deleteUser = async (id: number) => {
+  const deletePost = async (id: number) => {
     Swal.fire({
       title: '¿Estás seguro que quiere eliminar?',
       text: '¡No podrás revertir esto!',
@@ -41,17 +39,16 @@ const Users: React.FC = () => {
       cancelButtonColor: '#d33',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const success = await userService.deleteUser(id);
+        const success = await postService.deletePost(id);
         if (success) {
-          // Refrescar la lista de usuarios después de eliminar
-          Swal.fire('¡Eliminado!', 'El usuario ha sido eliminado.', 'success');
+          Swal.fire('¡Eliminado!', 'El post ha sido eliminado.', 'success');
           fetchData();
         } else {
-          console.error('Error al eliminar el usuario con id:', id);
+          console.error('Error al eliminar el post con id:', id);
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudo eliminar el usuario. Por favor, inténtalo de nuevo.',
+            text: 'No se pudo eliminar el post. Por favor, inténtalo de nuevo.',
           });
         }
       }
@@ -59,13 +56,13 @@ const Users: React.FC = () => {
   };
 
   const handleCreate = () => {
-    console.log('Create user');
-    navigate('/users/create');
+    console.log('Create post');
+    navigate('/posts/create');
   };
 
   return (
     <div>
-      <h2>User List</h2>
+      <h2>Post List</h2>
       <button
         onClick={handleCreate}
         className="inline-flex items-center justify-center bg-primary py-2 px-4 text-sm font-medium text-white rounded-md hover:bg-opacity-90 transition"
@@ -75,7 +72,7 @@ const Users: React.FC = () => {
 
       <GenericTable
         data={data}
-        columns={['id', 'name', 'email']}
+        columns={['id', 'title', 'body']}
         actions={[
           { name: 'edit', label: 'Edit' },
           { name: 'delete', label: 'Delete' },
@@ -86,4 +83,4 @@ const Users: React.FC = () => {
   );
 };
 
-export default Users;
+export default Posts;
