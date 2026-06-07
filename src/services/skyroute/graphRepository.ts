@@ -38,7 +38,7 @@ export const graphRepository = {
     const response = await api.get<ApiResponse<AirportSummary[]>>(
       '/graph/airports',
       {
-        params: { hubs_only: hubsOnly },
+        params: { solo_hubs: hubsOnly },
       },
     );
 

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import ForceGraph3D from 'force-graph';
+import { useEffect, useRef } from 'react';
+import ForceGraph from 'force-graph';
 import { Card, Spinner } from '../../../../components/ui';
 import type {
   AirportSummary,
@@ -28,7 +28,6 @@ interface GraphLink {
   source: string;
   target: string;
   distance: number;
-  aircraft: string[];
   cost: number;
 }
 
@@ -42,89 +41,80 @@ export function GraphVisualizationPanel({
 }: GraphVisualizationPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<any>(null);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || airports.length === 0) return;
 
-    // Prepare nodes
+    const container = containerRef.current;
+    container.innerHTML = '';
+
     const nodes: GraphNode[] = airports.map((airport) => ({
       id: airport.id,
-      name: airport.id,
-      isHub: airport.esHub || false,
-      val: airport.esHub ? 12 : 8,
-      color: airport.esHub ? '#f59e0b' : '#3b82f6',
+      name: airport.nombre ?? airport.id,
+      isHub: airport.esHub ?? false,
+      val: airport.esHub ? 7 : 4,
+      color: airport.esHub ? '#f59e0b' : '#4f46e5',
     }));
 
-    // Prepare links
     const links: GraphLink[] = routes.map((route) => ({
       source: route.origen,
       target: route.destino,
-      distance: route.distanciaKm || 0,
-      aircraft: route.aeronaves || [],
-      cost: route.costoBase || 0,
+      distance: route.distanciaKm ?? route.distanciaKm ?? 0,
+      cost: route.costoBase ?? route.costoBase ?? 0,
     }));
 
-    const graphData = {
-      nodes,
-      links,
-    };
-
-    if (!containerRef.current) return;
-
-    // Create force-graph instance
-    // ForceGraph3D's type may require using `new` in TypeScript builds.
-    // Cast to any to call as a function after instantiation.
-    const GraphFactory: any = ForceGraph3D;
-    const graph = new GraphFactory()(containerRef.current)
-      .graphData(graphData)
+    const graph = ForceGraph()(container)
+      .width(container.clientWidth)
+      .height(520)
+      .backgroundColor('#f8fafc')
+      .graphData({ nodes, links })
       .nodeId('id')
       .nodeVal('val')
       .nodeColor((node: any) => node.color)
-      .nodeLabel((node: any) => `${node.id}`)
+      .nodeLabel((node: any) =>
+        node.isHub ? `${node.id} · Hub` : `${node.id} · Secundario`,
+      )
       .linkSource('source')
       .linkTarget('target')
       .linkLabel((link: any) => `${link.distance} km · $${link.cost}`)
-      .linkWidth(1.5)
-      .linkColor(() => 'rgba(100, 150, 200, 0.4)')
-      .linkOpacity(0.7)
-      .linkDirectionalParticles(2)
-      .linkDirectionalParticleWidth(1.5)
-      .linkDirectionalParticleSpeed((link: any) => (link.distance || 500) * 0.00001)
-      .linkDirectionalArrowLength(4)
-      .linkDirectionalArrowRelPos(1)
+      .linkWidth(0.7)
+      .linkColor(() => 'rgba(100, 116, 139, 0.25)')
+      .linkDirectionalParticles(0)
+      .linkDirectionalArrowLength(0)
       .onNodeClick((node: any) => {
-        setSelectedNode(node.id);
-        const airport = airports.find((a) => a.id === node.id);
-        if (airport) {
-          onAirportSelect(airport);
-        }
+        const airport = airports.find((item) => item.id === node.id);
+        onAirportSelect(airport ?? null);
+        onRouteSelect(null);
       })
       .onLinkClick((link: any) => {
+        const sourceId =
+          typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId =
+          typeof link.target === 'object' ? link.target.id : link.target;
+
         const route = routes.find(
-          (r) => r.origen === link.source.id && r.destino === link.target.id
+          (item) => item.origen === sourceId && item.destino === targetId,
         );
-        if (route) {
-          onRouteSelect(route);
-        }
+
+        onRouteSelect(route ?? null);
+        onAirportSelect(null);
       })
       .onBackgroundClick(() => {
-        setSelectedNode(null);
         onAirportSelect(null);
         onRouteSelect(null);
       });
 
-    // Camera positioning
-    const canvas = containerRef.current.querySelector('canvas') as HTMLCanvasElement;
-    if (canvas) {
-      // Set initial distance based on number of nodes
-      const distance = Math.min(1000, Math.max(300, airports.length * 15));
-      graph.cameraPosition({ z: distance });
-    }
+    graph.d3Force('charge')?.strength(-80);
+    graph.d3Force('link')?.distance(90);
+
+    setTimeout(() => {
+      graph.zoomToFit(500, 40);
+    }, 600);
 
     graphRef.current = graph;
 
     return () => {
+      container.innerHTML = '';
       graphRef.current = null;
     };
   }, [airports, routes, onAirportSelect, onRouteSelect]);
@@ -135,6 +125,7 @@ export function GraphVisualizationPanel({
         <div className="sr-panel__header">
           <h2>Visualización del grafo</h2>
         </div>
+
         <div className="sr-alert sr-alert--error">{error}</div>
       </Card>
     );
@@ -148,6 +139,7 @@ export function GraphVisualizationPanel({
             <h2>Visualización del grafo</h2>
             <p>Cargando red aérea...</p>
           </div>
+
           {loading && <Spinner size="sm" />}
         </div>
       </Card>
@@ -159,21 +151,24 @@ export function GraphVisualizationPanel({
       <div className="sr-panel__header">
         <div>
           <h2>Visualización del grafo</h2>
-          <p>Interactúa con el grafo: haz clic en nodos para ver detalles y arrastra para rotar.</p>
+          <p>Haz clic en un aeropuerto o ruta para ver sus detalles.</p>
         </div>
       </div>
 
       <div className="graph-visualization-container">
         <div ref={containerRef} className="graph-canvas" />
+
         <div className="graph-legend">
           <div className="legend-item hub">
-            <span className="legend-dot" />
+            <span className="legend-dot legend-dot--hub" />
             <span>Aeropuerto Hub</span>
           </div>
+
           <div className="legend-item secondary">
-            <span className="legend-dot" />
+            <span className="legend-dot legend-dot--secondary" />
             <span>Aeropuerto Secundario</span>
           </div>
+
           <div className="legend-item route">
             <span className="legend-line" />
             <span>Ruta aérea</span>

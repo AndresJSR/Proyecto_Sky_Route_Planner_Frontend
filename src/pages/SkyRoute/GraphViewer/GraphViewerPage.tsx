@@ -1,6 +1,4 @@
-import { PageHeader } from './components/PageHeader';
 import { GraphVisualizationPanel } from './components/GraphVisualizationPanel';
-import { GraphSummaryPanel } from './components/GraphSummaryPanel';
 import { AirportDetailsPanel } from './components/AirportDetailsPanel';
 import { RouteDetailsPanel } from './components/RouteDetailsPanel';
 import { useGraphViewer } from './hooks/useGraphViewer';
@@ -34,52 +32,65 @@ export default function GraphViewerPage() {
   };
 
   return (
-    <div className="sr-graph-viewer-page">
-      <PageHeader />
-
-      <section className="sr-content">
-        <div className="sr-graph-container">
-          <div className="sr-graph-main">
-            <GraphVisualizationPanel
-              airports={airports}
-              routes={routes}
-              loading={loading}
-              error={error}
-              onAirportSelect={setSelectedAirport}
-              onRouteSelect={setSelectedRoute}
-            />
-          </div>
-
-          <aside className="sr-graph-sidebar">
-            <div className="sr-sidebar-controls">
-              <Button
-                variant={filterHubsOnly ? 'primary' : 'secondary'}
-                size="sm"
-                onClick={handleToggleHubsFilter}
-              >
-                {filterHubsOnly ? '✓ Mostrar Solo Hubs' : 'Mostrar Solo Hubs'}
-              </Button>
-              <Button variant="secondary" size="sm" onClick={handleResetSelection}>
-                Limpiar selección
-              </Button>
-            </div>
-
-            {selectedRoute ? (
-              <RouteDetailsPanel route={selectedRoute} />
-            ) : (
-              <AirportDetailsPanel airport={selectedAirport} />
-            )}
-          </aside>
+    <main className="sr-graph-viewer-page">
+      <section className="sr-graph-toolbar">
+        <div>
+          <span>SkyPlanner</span>
+          <h1>Visualización de la red aérea</h1>
         </div>
 
-        <GraphSummaryPanel
-          summary={summary}
+        <div className="sr-graph-toolbar__stats">
+          <div>
+            <small>Aeropuertos</small>
+            <strong>{summary?.total_aeropuertos ?? airports.length}</strong>
+          </div>
+
+          <div>
+            <small>Rutas</small>
+            <strong>{summary?.total_rutas ?? routes.length}</strong>
+          </div>
+
+          <div>
+            <small>Hubs</small>
+            <strong>{summary?.total_hubs ?? 0}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="sr-graph-area">
+        <GraphVisualizationPanel
           airports={airports}
           routes={routes}
           loading={loading}
           error={error}
+          onAirportSelect={setSelectedAirport}
+          onRouteSelect={setSelectedRoute}
         />
       </section>
-    </div>
+
+      <section className="sr-graph-details-row">
+        <div className="sr-graph-actions">
+          <Button
+            variant={filterHubsOnly ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={handleToggleHubsFilter}
+          >
+            {filterHubsOnly ? 'Mostrando hubs' : 'Mostrar solo hubs'}
+          </Button>
+
+          <Button variant="secondary" size="sm" onClick={handleResetSelection}>
+            Limpiar selección
+          </Button>
+        </div>
+
+        <div className="sr-graph-details-content">
+          {selectedRoute ? (
+            <RouteDetailsPanel route={selectedRoute} />
+          ) : (
+            <AirportDetailsPanel airport={selectedAirport} />
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

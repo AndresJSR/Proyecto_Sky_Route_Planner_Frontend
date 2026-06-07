@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useMemo, useState } from 'react';
 import type {
   AirportSummary,
   NetworkSummary,
   RouteDto,
 } from '../../../../models/skyroute/graph.types';
+import { graphRepository } from '../../../../services/skyroute/graphRepository';
 
 interface UseGraphViewerReturn {
   summary: NetworkSummary | null;
@@ -20,86 +20,70 @@ interface UseGraphViewerReturn {
   setFilterHubsOnly: (value: boolean) => void;
 }
 
-const API_BASE = 'http://localhost:8000';
-
 export function useGraphViewer(): UseGraphViewerReturn {
   const [summary, setSummary] = useState<NetworkSummary | null>(null);
   const [airports, setAirports] = useState<AirportSummary[]>([]);
   const [routes, setRoutes] = useState<RouteDto[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [selectedAirport, setSelectedAirport] = useState<AirportSummary | null>(
-    null
+    null,
   );
+
   const [selectedRoute, setSelectedRoute] = useState<RouteDto | null>(null);
+
   const [filterHubsOnly, setFilterHubsOnly] = useState(false);
 
-  // Load graph data from backend
   useEffect(() => {
-    const fetchGraphData = async () => {
+    async function fetchGraphData() {
       try {
         setLoading(true);
         setError(null);
 
-        // Try to load summary
-        try {
-          const summaryRes = await fetch(`${API_BASE}/graph/summary`);
-          if (summaryRes.ok) {
-            const summaryData = await summaryRes.json();
-            setSummary(summaryData);
-          }
-        } catch (e) {
-          console.warn('Failed to load graph summary');
-        }
+        const [summaryData, airportData, routeData] = await Promise.all([
+          graphRepository.getNetworkSummary(),
+          graphRepository.listAirports(false),
+          graphRepository.listRoutes(true),
+        ]);
 
-        // Load airports
-        const airportRes = await fetch(`${API_BASE}/airports`);
-        if (!airportRes.ok) {
-          throw new Error(`Failed to load airports: ${airportRes.statusText}`);
-        }
-        const airportData = await airportRes.json();
-        setAirports(Array.isArray(airportData) ? airportData : []);
+        setSummary(summaryData);
+        setAirports(airportData);
+        setRoutes(routeData);
+      } catch (fetchError) {
+        const message =
+          fetchError instanceof Error
+            ? fetchError.message
+            : 'No se pudo cargar la información del grafo.';
 
-        // Load routes
-        const routeRes = await fetch(`${API_BASE}/routes`);
-        if (!routeRes.ok) {
-          throw new Error(`Failed to load routes: ${routeRes.statusText}`);
-        }
-        const routeData = await routeRes.json();
-        setRoutes(Array.isArray(routeData) ? routeData : []);
-
+        setError(message);
+        console.error('Error fetching graph data:', fetchError);
+      } finally {
         setLoading(false);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Failed to load graph data from backend'
-        );
-        setLoading(false);
-
-        console.error('Error fetching graph data:', err);
       }
-    };
+    }
 
     fetchGraphData();
   }, []);
 
-  // Apply filters
-  const filteredAirports = filterHubsOnly
-    ? airports.filter((a) => a.esHub)
-    : airports;
+  const filteredAirports = useMemo(() => {
+    if (!filterHubsOnly) return airports;
 
-  const filteredRoutes = filterHubsOnly
-    ? routes.filter(
-        (r) =>
-          airports
-            .filter((a) => a.esHub)
-            .some((a) => a.id === r.origen) &&
-          airports
-            .filter((a) => a.esHub)
-            .some((a) => a.id === r.destino)
-      )
-    : routes;
+    return airports.filter((airport) => airport.esHub);
+  }, [airports, filterHubsOnly]);
+
+  const filteredRoutes = useMemo(() => {
+    if (!filterHubsOnly) return routes;
+
+    const hubIds = new Set(
+      airports.filter((airport) => airport.esHub).map((airport) => airport.id),
+    );
+
+    return routes.filter(
+      (route) => hubIds.has(route.origen) && hubIds.has(route.destino),
+    );
+  }, [airports, routes, filterHubsOnly]);
 
   return {
     summary,
