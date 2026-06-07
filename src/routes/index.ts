@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+
 const UserCreate = lazy(() => import('../pages/Users/Create'));
 const UserUpdate = lazy(() => import('../pages/Users/Update'));
 
@@ -14,7 +15,24 @@ const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const Demo = lazy(() => import('../pages/Demo'));
 const Posts = lazy(() => import('../pages/Post/List'));
 
+const BasicPlanner = lazy(
+  () => import('../pages/SkyRoute/BasicPlanner/BasicPlannerPage'),
+);
+const InterruptionHandler = lazy(
+  () => import('../pages/SkyRoute/InterruptionHandler/InterruptionHandlerPage'),
+);
+
 const coreRoutes = [
+  {
+    path: '/planner',
+    title: 'SkyRoute Planner',
+    component: BasicPlanner,
+  },
+  {
+    path: '/interruption-handler',
+    title: 'Interruption Handler',
+    component: InterruptionHandler,
+  },
   {
     path: '/demo',
     title: 'Demo',
@@ -30,7 +48,6 @@ const coreRoutes = [
     title: 'User List',
     component: lazy(() => import('../pages/Users/List')),
   },
-
   {
     path: '/users/create',
     title: 'Create User',
@@ -92,14 +109,12 @@ const coreRoutes = [
     component: Buttons,
   },
   {
-     path: '/posts/list',
-     title: 'Posts',
-     component: Posts,
-    },
-    
-    
+    path: '/posts/list',
+    title: 'Posts',
+    component: Posts,
+  },
 ];
 
 const routes = [...coreRoutes];
+
 export default routes;
-  

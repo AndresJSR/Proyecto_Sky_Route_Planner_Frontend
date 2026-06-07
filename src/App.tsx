@@ -8,7 +8,6 @@ import SignUp from './pages/Authentication/SignUp';
 import Loader from './common/Loader';
 import routes from './routes';
 
-import ProtectedRoute from '../src/components/Auth/ProtectedRoute';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -32,7 +31,6 @@ function App() {
         <Route path="/auth/signin" element={<SignIn />} />
         <Route path="/auth/signup" element={<SignUp />} />
 
-        <Route element={<ProtectedRoute />}>
           <Route element={<DefaultLayout />}>
             <Route index element={<ECommerce />} />
             {routes.map((routes, index) => {
@@ -50,7 +48,6 @@ function App() {
               );
             })}
           </Route>
-        </Route>
       </Routes>
     </>
   );

@@ -35,7 +35,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   });
-
   // close if the esc key is pressed
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
@@ -103,6 +102,46 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </h3>
 
               <ul className="mb-6 flex flex-col gap-1.5">
+                <ul className="mb-6 flex flex-col gap-1.5">
+                  <li>
+                    <NavLink
+                      to="/planner"
+                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        pathname.includes('planner') &&
+                        'bg-graydark dark:bg-meta-4'
+                      }`}
+                    >
+                      SkyRoute Planner
+                    </NavLink>
+                  </li>
+                  {/* <!-- Menu Item Interruption Handler --> */}
+                  <li>
+                    <NavLink
+                      to="/interruption-handler"
+                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        pathname.includes('interruption-handler') &&
+                        'bg-graydark dark:bg-meta-4'
+                      }`}
+                    >
+                      <svg
+                        className="fill-current"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M12 2L4 5V11C4 16.55 7.84 21.74 12 23C16.16 21.74 20 16.55 20 11V5L12 2ZM12 4.18L18 6.43V11C18 15.45 15.19 19.68 12 20.88C8.81 19.68 6 15.45 6 11V6.43L12 4.18ZM11 7V13H13V7H11ZM11 15V17H13V15H11Z"
+                          fill=""
+                        />
+                      </svg>
+                      Interruption Handler
+                    </NavLink>
+                  </li>
+                  {/* <!-- Menu Item Interruption Handler --> */}
+                  {/* resto del menú */}
+                </ul>
                 {/* <!-- Menu Item Dashboard --> */}
                 <SidebarLinkGroup
                   activeCondition={

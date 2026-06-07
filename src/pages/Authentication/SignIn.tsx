@@ -3,7 +3,6 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { User } from '../../models/User';
-import SecurityService from '../../services/SecurityService';
 
 import Breadcrumb from '../../components/Breadcrumb';
 import { useNavigate } from 'react-router-dom';
@@ -13,9 +12,7 @@ const SignIn: React.FC = () => {
   const handleLogin = async (user: User) => {
     console.log('aqui ' + JSON.stringify(user));
     try {
-      const response = await SecurityService.login(user);
-      console.log('Usuario autenticado:', response);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error al iniciar sesión', error);
     }

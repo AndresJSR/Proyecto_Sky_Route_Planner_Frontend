@@ -1,72 +1,301 @@
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+.
+├── index.html
+├── LICENSE.md
+├── package.json
+├── package-lock.json
+├── postcss.config.cjs
+├── public
+│   ├── data.json
+│   └── favicon.ico
+├── README.md
+├── server
+│   └── main.py
+├── src
+│   ├── App.tsx
+│   ├── common
+│   │   └── Loader
+│   │       └── index.tsx
+│   ├── components
+│   │   ├── Auth
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── Breadcrumb.tsx
+│   │   ├── CardFour.tsx
+│   │   ├── CardOne.tsx
+│   │   ├── CardThree.tsx
+│   │   ├── CardTwo.tsx
+│   │   ├── ChartFour.tsx
+│   │   ├── ChartOne.tsx
+│   │   ├── ChartThree.tsx
+│   │   ├── ChartTwo.tsx
+│   │   ├── ChatCard.tsx
+│   │   ├── CheckboxFive.tsx
+│   │   ├── CheckboxFour.tsx
+│   │   ├── CheckboxOne.tsx
+│   │   ├── CheckboxThree.tsx
+│   │   ├── CheckboxTwo.tsx
+│   │   ├── DarkModeSwitcher.tsx
+│   │   ├── DataStats.tsx
+│   │   ├── DropdownDefault.tsx
+│   │   ├── DropdownMessage.tsx
+│   │   ├── DropdownNotification.tsx
+│   │   ├── DropdownUser.tsx
+│   │   ├── GenericTable.tsx
+│   │   ├── Header.tsx
+│   │   ├── MapOne.tsx
+│   │   ├── ModalSettings.tsx
+│   │   ├── SidebarLinkGroup.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── SwitcherFour.tsx
+│   │   ├── SwitcherOne.tsx
+│   │   ├── SwitcherThree.tsx
+│   │   ├── SwitcherTwo.tsx
+│   │   ├── TableOne.tsx
+│   │   ├── TableSettings.tsx
+│   │   ├── TableThree.tsx
+│   │   ├── TableTwo.tsx
+│   │   ├── TaskHeader.tsx
+│   │   ├── ui
+│   │   │   ├── Badge.tsx
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── index.ts
+│   │   │   ├── Input.tsx
+│   │   │   ├── Select.tsx
+│   │   │   ├── Spinner.tsx
+│   │   │   └── Table.tsx
+│   │   └── users
+│   │       └── UserFormValidator.tsx
+│   ├── fonts
+│   │   ├── Satoshi-Black.eot
+│   │   ├── Satoshi-BlackItalic.eot
+│   │   ├── Satoshi-BlackItalic.ttf
+│   │   ├── Satoshi-BlackItalic.woff
+│   │   ├── Satoshi-BlackItalic.woff2
+│   │   ├── Satoshi-Black.ttf
+│   │   ├── Satoshi-Black.woff
+│   │   ├── Satoshi-Black.woff2
+│   │   ├── Satoshi-Bold.eot
+│   │   ├── Satoshi-BoldItalic.eot
+│   │   ├── Satoshi-BoldItalic.ttf
+│   │   ├── Satoshi-BoldItalic.woff
+│   │   ├── Satoshi-BoldItalic.woff2
+│   │   ├── Satoshi-Bold.ttf
+│   │   ├── Satoshi-Bold.woff
+│   │   ├── Satoshi-Bold.woff2
+│   │   ├── Satoshi-Italic.eot
+│   │   ├── Satoshi-Italic.ttf
+│   │   ├── Satoshi-Italic.woff
+│   │   ├── Satoshi-Italic.woff2
+│   │   ├── Satoshi-Light.eot
+│   │   ├── Satoshi-LightItalic.eot
+│   │   ├── Satoshi-LightItalic.ttf
+│   │   ├── Satoshi-LightItalic.woff
+│   │   ├── Satoshi-LightItalic.woff2
+│   │   ├── Satoshi-Light.ttf
+│   │   ├── Satoshi-Light.woff
+│   │   ├── Satoshi-Light.woff2
+│   │   ├── Satoshi-Medium.eot
+│   │   ├── Satoshi-MediumItalic.eot
+│   │   ├── Satoshi-MediumItalic.ttf
+│   │   ├── Satoshi-MediumItalic.woff
+│   │   ├── Satoshi-MediumItalic.woff2
+│   │   ├── Satoshi-Medium.ttf
+│   │   ├── Satoshi-Medium.woff
+│   │   ├── Satoshi-Medium.woff2
+│   │   ├── Satoshi-Regular.eot
+│   │   ├── Satoshi-Regular.ttf
+│   │   ├── Satoshi-Regular.woff
+│   │   ├── Satoshi-Regular.woff2
+│   │   ├── Satoshi-Variable.eot
+│   │   ├── Satoshi-VariableItalic.eot
+│   │   ├── Satoshi-VariableItalic.ttf
+│   │   ├── Satoshi-VariableItalic.woff
+│   │   ├── Satoshi-VariableItalic.woff2
+│   │   ├── Satoshi-Variable.ttf
+│   │   ├── Satoshi-Variable.woff
+│   │   └── Satoshi-Variable.woff2
+│   ├── hooks
+│   │   ├── fireToast.tsx
+│   │   ├── useColorMode.tsx
+│   │   └── useLocalStorage.tsx
+│   ├── images
+│   │   ├── brand
+│   │   │   ├── brand-01.svg
+│   │   │   ├── brand-02.svg
+│   │   │   ├── brand-03.svg
+│   │   │   ├── brand-04.svg
+│   │   │   └── brand-05.svg
+│   │   ├── cards
+│   │   │   ├── cards-01.png
+│   │   │   ├── cards-02.png
+│   │   │   ├── cards-03.png
+│   │   │   ├── cards-04.png
+│   │   │   ├── cards-05.png
+│   │   │   └── cards-06.png
+│   │   ├── country
+│   │   │   ├── country-01.svg
+│   │   │   ├── country-02.svg
+│   │   │   ├── country-03.svg
+│   │   │   ├── country-04.svg
+│   │   │   ├── country-05.svg
+│   │   │   └── country-06.svg
+│   │   ├── cover
+│   │   │   └── cover-01.png
+│   │   ├── favicon.ico
+│   │   ├── icon
+│   │   │   ├── icon-arrow-down.svg
+│   │   │   ├── icon-calendar.svg
+│   │   │   ├── icon-copy-alt.svg
+│   │   │   ├── icon-moon.svg
+│   │   │   └── icon-sun.svg
+│   │   ├── logo
+│   │   │   ├── logo-dark.svg
+│   │   │   ├── logo-icon.svg
+│   │   │   └── logo.svg
+│   │   ├── product
+│   │   │   ├── product-01.png
+│   │   │   ├── product-02.png
+│   │   │   ├── product-03.png
+│   │   │   ├── product-04.png
+│   │   │   └── product-thumb.png
+│   │   ├── task
+│   │   │   └── task-01.jpg
+│   │   └── user
+│   │       ├── user-01.png
+│   │       ├── user-02.png
+│   │       ├── user-03.png
+│   │       ├── user-04.png
+│   │       ├── user-05.png
+│   │       ├── user-06.png
+│   │       ├── user-07.png
+│   │       ├── user-08.png
+│   │       ├── user-09.png
+│   │       ├── user-10.png
+│   │       ├── user-11.png
+│   │       ├── user-12.png
+│   │       └── user-13.png
+│   ├── index.css
+│   ├── interceptors
+│   │   └── authInterceptors.ts
+│   ├── js
+│   │   ├── drag.ts
+│   │   └── us-aea-en.js
+│   ├── layout
+│   │   └── DefaultLayout.tsx
+│   ├── lib.d.ts
+│   ├── main.tsx
+│   ├── models
+│   │   ├── Country.ts
+│   │   ├── Post.ts
+│   │   ├── Role.ts
+│   │   ├── skyroute
+│   │   │   ├── api.types.ts
+│   │   │   ├── graph.types.ts
+│   │   │   ├── interruption.types.ts
+│   │   │   ├── planner.types.ts
+│   │   │   └── report.types.ts
+│   │   └── User.ts
+│   ├── pages
+│   │   ├── Authentication
+│   │   │   ├── SignIn.tsx
+│   │   │   └── SignUp.tsx
+│   │   ├── Calendar.tsx
+│   │   ├── Chart.tsx
+│   │   ├── Countries
+│   │   │   └── List.tsx
+│   │   ├── Dashboard
+│   │   │   └── ECommerce.tsx
+│   │   ├── Demo.tsx
+│   │   ├── Form
+│   │   │   ├── FormElements.tsx
+│   │   │   └── FormLayout.tsx
+│   │   ├── Post
+│   │   │   └── List.tsx
+│   │   ├── Profile.tsx
+│   │   ├── Roles
+│   │   │   └── List.tsx
+│   │   ├── Settings.tsx
+│   │   ├── SkyRoute
+│   │   │   ├── AdvancedTrip
+│   │   │   │   ├── AdvancedTripPage.css
+│   │   │   │   ├── AdvancedTripPage.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── BasicPlanner
+│   │   │   │   ├── BasicPlannerPage.css
+│   │   │   │   ├── BasicPlannerPage.tsx
+│   │   │   │   ├── components
+│   │   │   │   │   ├── CommonPlannerFilters.tsx
+│   │   │   │   │   ├── GraphSummaryPanel.tsx
+│   │   │   │   │   ├── ItinerariesPanel.tsx
+│   │   │   │   │   ├── ItineraryCard.tsx
+│   │   │   │   │   ├── OptimalRoutePanel.tsx
+│   │   │   │   │   ├── PageHeader.tsx
+│   │   │   │   │   ├── PlannerErrorAlert.tsx
+│   │   │   │   │   ├── RouteLegsTable.tsx
+│   │   │   │   │   ├── RouteResultCard.tsx
+│   │   │   │   │   └── RoutesByCriteriaPanel.tsx
+│   │   │   │   ├── constants
+│   │   │   │   │   └── plannerOptions.ts
+│   │   │   │   ├── hooks
+│   │   │   │   │   └── useBasicPlannerPage.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── utils
+│   │   │   │       └── plannerFormatters.ts
+│   │   │   ├── Dashboard
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── SkyRouteDashboardPage.css
+│   │   │   │   └── SkyRouteDashboardPage.tsx
+│   │   │   ├── docs
+│   │   │   │   ├── ARCHITECTURE.md
+│   │   │   │   └── MIGRATION_PLAN.md
+│   │   │   ├── GraphViewer
+│   │   │   │   ├── GraphViewerPage.css
+│   │   │   │   ├── GraphViewerPage.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── index.ts
+│   │   │   ├── InterruptionHandler
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── InterruptionHandlerPage.css
+│   │   │   │   └── InterruptionHandlerPage.tsx
+│   │   │   └── Reports
+│   │   │       ├── index.ts
+│   │   │       ├── ReportsPage.css
+│   │   │       └── ReportsPage.tsx
+│   │   ├── Tables.tsx
+│   │   ├── UiElements
+│   │   │   ├── Alerts.tsx
+│   │   │   └── Buttons.tsx
+│   │   └── Users
+│   │       ├── Create.tsx
+│   │       ├── List.tsx
+│   │       └── Update.tsx
+│   ├── react-app-env.d.ts
+│   ├── routes
+│   │   └── index.ts
+│   ├── satoshi.css
+│   ├── services
+│   │   ├── countryService.ts
+│   │   ├── postService.ts
+│   │   ├── SecurityService.ts
+│   │   ├── skyroute
+│   │   │   ├── api.ts
+│   │   │   ├── graphRepository.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interruptionRepository.ts
+│   │   │   ├── plannerRepository.ts
+│   │   │   └── reportRepository.ts
+│   │   └── userService.ts
+│   ├── src
+│   │   └── vite-env.d.ts
+│   ├── storage
+│   │   ├── LocalStorageProvider.tsx
+│   │   └── StorageProvider.tsx
+│   └── store
+│       ├── store.ts
+│       └── userSlice.ts
+├── tailwind.config.cjs
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.js
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers with everything they need to create a comprehensive, data-driven back-end, 
-dashboard, or admin panel solution for upcoming web projects.
-
-[![tailwind react admin template](https://ucarecdn.com/d2a6daed-eb9c-4c2f-8a95-4419c450e23a/tailadminreact.jpg)](https://react-demo.tailadmin.com/)
-
-
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
-
-### [✨ Visit Website](https://tailadmin.com/)
-
-### [🚀 PRO Demo](https://react-demo.tailadmin.com/)
-### [🚀 FREE Demo](https://free-react-demo.tailadmin.com/)
-
-### TailAdmin React PRO vs TailAdmin React FREE Comparison 📊
-
-#### [TailAdmin React PRO](https://react-demo.tailadmin.com/)
-- 4 Unique Dashboards: Analytics, Ecommerce, Marketing, and CRM (More will be added)
-- 120+ Dashboard UI Components
-- 200+ Total UI Elements
-- 45+ HTML Files
-- All Essential Elements and Files
-- Full Figma Design Source - As Shown on Demo
-
-___
-
-#### [TailAdmin React FREE](https://free-react-demo.tailadmin.com/)
-- 1 Unique Dashboard
-- 30+ Dashboard UI Components
-- 50+ Total UI Elements 
-- 10+ HTML Files
-- TypeScript Support
-- Basic UI Kit Elements and Files
-- Figma Design Source - Free Sample
-___
-
-### [⬇️ Download Now](https://tailadmin.com/download)
-
-### [⚡ Get PRO Version](https://tailadmin.com/pricing)
-
-### [📄 Documentation/Installation](https://tailadmin.com/docs)
-
-### [🖌️ TailAdmin Figma Free Sample](https://www.figma.com/community/file/1214477970819985778)
-
-### [👉 TailAdmin HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-
-TailAdmin React dashboard template based on Tailwind CSS is a pre-designed starting point for building a web-based dashboard using the React JavaScript library and the Tailwind CSS utility-first framework. This Tailwind CSS + React Dashboard Template - built using Tailwind CSS and **includes pre-built components, such as navigation menus, charts, tables, and forms, which can be easily customized and integrated into a small-to-large React web application**.
-
-If you're looking for a high-quality **React-Tailwind Dashboard, Admin Panel Template, or UI Kit**, TailAdmin will be the perfect choice for you!
-
-## TailAdmin React - Installation
-
-You'll need to install Node.js >=v14.16+ (Recommended Version) (NPM comes along with it) and TailAdmin uses **Vite** for frontend tooling, to peform installation and building production version, please follow these steps from below:
-
-- Use terminal and navigate to the project (tailadmin-react) root.
-
-- Then run : <code>npm install</code>
-
-- Then run : <code>npm run dev</code>
-
-Now, in the browser go to <code>localhost:5173</code>
-
-**For Production Build**
-Run : <code>npm run build</code>
-
-Default build output directory: /dist
-
-This command will generate a dist as build folder in the root of your template that you can upload to your server.
-
-## Tons of React Tailwind Components for Dashboard
-React and Tailwind are two popular technologies that have taken the web development world by storm. React is a JavaScript library for building user interfaces, while Tailwind is a utility-first CSS framework that makes it easy to style web applications. TailAdmin React Offers 200+ Essential React + Tailwind CSS UI Components that you copy-paste and use with your dashboard projects. That includes - charts, graphs, navbars, tabs, buttons, cards, tables, profile, tabs, forms, modals, app pages, calender, web apps example templates and more... for React and Styled using Tailwind CSS
+53 directories, 245 files
