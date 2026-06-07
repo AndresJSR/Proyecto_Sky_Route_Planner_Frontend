@@ -3,7 +3,6 @@ import Logo from '../images/logo/logo-icon.svg';
 import DarkModeSwitcher from './DarkModeSwitcher';
 import DropdownMessage from './DropdownMessage';
 import DropdownNotification from './DropdownNotification';
-import DropdownUser from './DropdownUser';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -111,9 +110,6 @@ const Header = (props: {
             <DropdownMessage />
             {/* <!-- Chat Notification Area --> */}
           </ul>
-
-          {/* <!-- User Area --> */}
-          <DropdownUser />
           {/* <!-- User Area --> */}
         </div>
       </div>
