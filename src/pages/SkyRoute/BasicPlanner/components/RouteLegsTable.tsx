@@ -13,7 +13,9 @@ interface RouteLegRow extends Record<string, unknown> {
   aeronave: string;
   distancia: string;
   costo: string;
+  costoAcumulado: string;
   tiempo: string;
+  tiempoAcumulado: string;
   subsidiada: string;
 }
 
@@ -93,6 +95,9 @@ function getBooleanValue(source: unknown, keys: string[]) {
 }
 
 export function RouteLegsTable({ legs }: RouteLegsTableProps) {
+  let costoAcumulado = 0;
+  let tiempoAcumulado = 0;
+
   const rows: RouteLegRow[] = legs.map((leg, index) => {
     const origen = getStringValue(leg, STRING_KEYS.origen);
     const destino = getStringValue(leg, STRING_KEYS.destino);
@@ -103,6 +108,9 @@ export function RouteLegsTable({ legs }: RouteLegsTableProps) {
     const tiempo = getNumberValue(leg, NUMBER_KEYS.tiempo);
     const subsidiada = getBooleanValue(leg, BOOLEAN_KEYS.subsidiada);
 
+    costoAcumulado += costo;
+    tiempoAcumulado += tiempo;
+
     return {
       tramo: `${index + 1}`,
       origen,
@@ -110,7 +118,9 @@ export function RouteLegsTable({ legs }: RouteLegsTableProps) {
       aeronave,
       distancia: `${formatNumber(distancia)} km`,
       costo: `$${formatNumber(costo)} USD`,
+      costoAcumulado: `$${formatNumber(costoAcumulado)} USD`,
       tiempo: `${formatNumber(tiempo)} min`,
+      tiempoAcumulado: `${formatNumber(tiempoAcumulado)} min`,
       subsidiada: subsidiada ? 'Sí' : 'No',
     };
   });
@@ -126,8 +136,10 @@ export function RouteLegsTable({ legs }: RouteLegsTableProps) {
         { key: 'destino', label: 'Destino' },
         { key: 'aeronave', label: 'Aeronave usada' },
         { key: 'distancia', label: 'Distancia' },
-        { key: 'costo', label: 'Costo' },
-        { key: 'tiempo', label: 'Tiempo' },
+        { key: 'costo', label: 'Costo tramo' },
+        { key: 'costoAcumulado', label: 'Costo acumulado' },
+        { key: 'tiempo', label: 'Tiempo tramo' },
+        { key: 'tiempoAcumulado', label: 'Tiempo acumulado' },
         { key: 'subsidiada', label: 'Subsidiada' },
       ]}
     />

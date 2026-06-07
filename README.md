@@ -16,55 +16,24 @@
 │   │   └── Loader
 │   │       └── index.tsx
 │   ├── components
-│   │   ├── Auth
-│   │   │   └── ProtectedRoute.tsx
 │   │   ├── Breadcrumb.tsx
-│   │   ├── CardFour.tsx
-│   │   ├── CardOne.tsx
-│   │   ├── CardThree.tsx
-│   │   ├── CardTwo.tsx
-│   │   ├── ChartFour.tsx
-│   │   ├── ChartOne.tsx
-│   │   ├── ChartThree.tsx
-│   │   ├── ChartTwo.tsx
-│   │   ├── ChatCard.tsx
-│   │   ├── CheckboxFive.tsx
-│   │   ├── CheckboxFour.tsx
-│   │   ├── CheckboxOne.tsx
-│   │   ├── CheckboxThree.tsx
-│   │   ├── CheckboxTwo.tsx
 │   │   ├── DarkModeSwitcher.tsx
-│   │   ├── DataStats.tsx
 │   │   ├── DropdownDefault.tsx
 │   │   ├── DropdownMessage.tsx
 │   │   ├── DropdownNotification.tsx
-│   │   ├── DropdownUser.tsx
-│   │   ├── GenericTable.tsx
 │   │   ├── Header.tsx
-│   │   ├── MapOne.tsx
-│   │   ├── ModalSettings.tsx
 │   │   ├── SidebarLinkGroup.tsx
 │   │   ├── Sidebar.tsx
-│   │   ├── SwitcherFour.tsx
-│   │   ├── SwitcherOne.tsx
-│   │   ├── SwitcherThree.tsx
-│   │   ├── SwitcherTwo.tsx
-│   │   ├── TableOne.tsx
-│   │   ├── TableSettings.tsx
-│   │   ├── TableThree.tsx
-│   │   ├── TableTwo.tsx
 │   │   ├── TaskHeader.tsx
-│   │   ├── ui
-│   │   │   ├── Badge.tsx
-│   │   │   ├── Button.tsx
-│   │   │   ├── Card.tsx
-│   │   │   ├── index.ts
-│   │   │   ├── Input.tsx
-│   │   │   ├── Select.tsx
-│   │   │   ├── Spinner.tsx
-│   │   │   └── Table.tsx
-│   │   └── users
-│   │       └── UserFormValidator.tsx
+│   │   └── ui
+│   │       ├── Badge.tsx
+│   │       ├── Button.tsx
+│   │       ├── Card.tsx
+│   │       ├── index.ts
+│   │       ├── Input.tsx
+│   │       ├── Select.tsx
+│   │       ├── Spinner.tsx
+│   │       └── Table.tsx
 │   ├── fonts
 │   │   ├── Satoshi-Black.eot
 │   │   ├── Satoshi-BlackItalic.eot
@@ -175,8 +144,6 @@
 │   │       ├── user-12.png
 │   │       └── user-13.png
 │   ├── index.css
-│   ├── interceptors
-│   │   └── authInterceptors.ts
 │   ├── js
 │   │   ├── drag.ts
 │   │   └── us-aea-en.js
@@ -185,124 +152,101 @@
 │   ├── lib.d.ts
 │   ├── main.tsx
 │   ├── models
-│   │   ├── Country.ts
-│   │   ├── Post.ts
-│   │   ├── Role.ts
-│   │   ├── skyroute
-│   │   │   ├── api.types.ts
-│   │   │   ├── graph.types.ts
-│   │   │   ├── interruption.types.ts
-│   │   │   ├── planner.types.ts
-│   │   │   └── report.types.ts
-│   │   └── User.ts
+│   │   └── skyroute
+│   │       ├── api.types.ts
+│   │       ├── graph.types.ts
+│   │       ├── interruption.types.ts
+│   │       ├── planner.types.ts
+│   │       └── report.types.ts
 │   ├── pages
-│   │   ├── Authentication
-│   │   │   ├── SignIn.tsx
-│   │   │   └── SignUp.tsx
-│   │   ├── Calendar.tsx
-│   │   ├── Chart.tsx
-│   │   ├── Countries
-│   │   │   └── List.tsx
-│   │   ├── Dashboard
-│   │   │   └── ECommerce.tsx
-│   │   ├── Demo.tsx
-│   │   ├── Form
-│   │   │   ├── FormElements.tsx
-│   │   │   └── FormLayout.tsx
-│   │   ├── Post
-│   │   │   └── List.tsx
-│   │   ├── Profile.tsx
-│   │   ├── Roles
-│   │   │   └── List.tsx
-│   │   ├── Settings.tsx
-│   │   ├── SkyRoute
-│   │   │   ├── AdvancedTrip
-│   │   │   │   ├── AdvancedTripPage.css
-│   │   │   │   ├── AdvancedTripPage.tsx
-│   │   │   │   └── index.ts
-│   │   │   ├── BasicPlanner
-│   │   │   │   ├── BasicPlannerPage.css
-│   │   │   │   ├── BasicPlannerPage.tsx
-│   │   │   │   ├── components
-│   │   │   │   │   ├── CommonPlannerFilters.tsx
-│   │   │   │   │   ├── GraphSummaryPanel.tsx
-│   │   │   │   │   ├── ItinerariesPanel.tsx
-│   │   │   │   │   ├── ItineraryCard.tsx
-│   │   │   │   │   ├── OptimalRoutePanel.tsx
-│   │   │   │   │   ├── PageHeader.tsx
-│   │   │   │   │   ├── PlannerErrorAlert.tsx
-│   │   │   │   │   ├── RouteLegsTable.tsx
-│   │   │   │   │   ├── RouteResultCard.tsx
-│   │   │   │   │   └── RoutesByCriteriaPanel.tsx
-│   │   │   │   ├── constants
-│   │   │   │   │   └── plannerOptions.ts
-│   │   │   │   ├── hooks
-│   │   │   │   │   └── useBasicPlannerPage.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   └── utils
-│   │   │   │       └── plannerFormatters.ts
-│   │   │   ├── Dashboard
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── SkyRouteDashboardPage.css
-│   │   │   │   └── SkyRouteDashboardPage.tsx
-│   │   │   ├── docs
-│   │   │   │   ├── ARCHITECTURE.md
-│   │   │   │   └── MIGRATION_PLAN.md
-│   │   │   ├── GraphViewer
-│   │   │   │   ├── GraphViewerPage.css
-│   │   │   │   ├── GraphViewerPage.tsx
-│   │   │   │   └── index.ts
-│   │   │   ├── index.ts
-│   │   │   ├── InterruptionHandler
-│   │   │   │   ├── components
-│   │   │   │   │   ├── BlockedRoutesTable.tsx
-│   │   │   │   │   ├── BlockRouteForm.tsx
-│   │   │   │   │   ├── InterruptionHandlerPage.tsx
-│   │   │   │   │   └── InterruptionSummaryCards.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   └── useInterruptionHandlerPage.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── InterruptionHandlerPage.css
-│   │   │   │   └── InterruptionHandlerPage.tsx
-│   │   │   └── Reports
-│   │   │       ├── index.ts
-│   │   │       ├── ReportsPage.css
-│   │   │       └── ReportsPage.tsx
-│   │   ├── Tables.tsx
-│   │   ├── UiElements
-│   │   │   ├── Alerts.tsx
-│   │   │   └── Buttons.tsx
-│   │   └── Users
-│   │       ├── Create.tsx
-│   │       ├── List.tsx
-│   │       └── Update.tsx
+│   │   └── SkyRoute
+│   │       ├── AdvancedTrip
+│   │       │   ├── AdvancedTripPage.css
+│   │       │   ├── AdvancedTripPage.tsx
+│   │       │   ├── components
+│   │       │   │   ├── StepActionsPanel.tsx
+│   │       │   │   └── TripStatePanel.tsx
+│   │       │   ├── hooks
+│   │       │   │   └── useAdvancedTripPage.ts
+│   │       │   └── index.ts
+│   │       ├── BasicPlanner
+│   │       │   ├── BasicPlannerPage.css
+│   │       │   ├── BasicPlannerPage.tsx
+│   │       │   ├── components
+│   │       │   │   ├── CommonPlannerFilters.tsx
+│   │       │   │   ├── GraphSummaryPanel.tsx
+│   │       │   │   ├── ItinerariesPanel.tsx
+│   │       │   │   ├── ItineraryCard.tsx
+│   │       │   │   ├── OptimalRoutePanel.tsx
+│   │       │   │   ├── PageHeader.tsx
+│   │       │   │   ├── PlannerErrorAlert.tsx
+│   │       │   │   ├── RouteLegsTable.tsx
+│   │       │   │   ├── RouteResultCard.tsx
+│   │       │   │   └── RoutesByCriteriaPanel.tsx
+│   │       │   ├── constants
+│   │       │   │   └── plannerOptions.ts
+│   │       │   ├── hooks
+│   │       │   │   └── useBasicPlannerPage.ts
+│   │       │   ├── index.ts
+│   │       │   └── utils
+│   │       │       ├── plannerFormatters.ts
+│   │       │       └── transportValidation.ts
+│   │       ├── Dashboard
+│   │       │   ├── index.ts
+│   │       │   ├── SkyRouteDashboardPage.css
+│   │       │   └── SkyRouteDashboardPage.tsx
+│   │       ├── docs
+│   │       │   ├── ARCHITECTURE.md
+│   │       │   └── MIGRATION_PLAN.md
+│   │       ├── GraphViewer
+│   │       │   ├── components
+│   │       │   │   ├── AirportDetailsPanel.tsx
+│   │       │   │   ├── GraphSummaryPanel.tsx
+│   │       │   │   ├── GraphVisualization.css
+│   │       │   │   ├── GraphVisualizationPanel.tsx
+│   │       │   │   ├── PageHeader.tsx
+│   │       │   │   └── RouteDetailsPanel.tsx
+│   │       │   ├── GraphViewerPage.css
+│   │       │   ├── GraphViewerPage.tsx
+│   │       │   ├── hooks
+│   │       │   │   └── useGraphViewer.ts
+│   │       │   └── index.ts
+│   │       ├── index.ts
+│   │       ├── InterruptionHandler
+│   │       │   ├── components
+│   │       │   │   ├── BlockedRoutesTable.tsx
+│   │       │   │   ├── BlockRouteForm.tsx
+│   │       │   │   ├── InterruptionHandlerPage.tsx
+│   │       │   │   └── InterruptionSummaryCards.tsx
+│   │       │   ├── hooks
+│   │       │   │   └── useInterruptionHandlerPage.ts
+│   │       │   ├── index.ts
+│   │       │   ├── InterruptionHandlerPage.css
+│   │       │   └── InterruptionHandlerPage.tsx
+│   │       └── Reports
+│   │           ├── index.ts
+│   │           ├── ReportsPage.css
+│   │           └── ReportsPage.tsx
 │   ├── react-app-env.d.ts
 │   ├── routes
 │   │   └── index.ts
 │   ├── satoshi.css
 │   ├── services
-│   │   ├── countryService.ts
-│   │   ├── postService.ts
-│   │   ├── SecurityService.ts
-│   │   ├── skyroute
-│   │   │   ├── api.ts
-│   │   │   ├── graphRepository.ts
-│   │   │   ├── index.ts
-│   │   │   ├── interruptionRepository.ts
-│   │   │   ├── interruptionService.ts
-│   │   │   ├── plannerRepository.ts
-│   │   │   └── reportRepository.ts
-│   │   └── userService.ts
+│   │   └── skyroute
+│   │       ├── api.ts
+│   │       ├── graphRepository.ts
+│   │       ├── index.ts
+│   │       ├── interruptionRepository.ts
+│   │       ├── interruptionService.ts
+│   │       ├── plannerRepository.ts
+│   │       └── reportRepository.ts
 │   ├── storage
 │   │   ├── LocalStorageProvider.tsx
 │   │   └── StorageProvider.tsx
-│   ├── store
-│   │   ├── store.ts
-│   │   └── userSlice.ts
 │   └── vite-env.d.ts
 ├── tailwind.config.cjs
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.js
 
-54 directories, 251 files
+46 directories, 203 files

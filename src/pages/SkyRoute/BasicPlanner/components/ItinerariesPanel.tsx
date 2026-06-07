@@ -26,17 +26,19 @@ export function ItinerariesPanel({
     <Card className="sr-panel">
       <div className="sr-panel__header">
         <div>
-          <h2>Itinerarios con restricciones</h2>
+          <h2>4. Propuesta de itinerarios con restricciones</h2>
           <p>
-            Propone alternativas respetando simultáneamente presupuesto y tiempo
-            disponible.
+            Genera alternativas desde el aeropuerto de origen seleccionado,
+            usando el presupuesto inicial y el tiempo disponible. A diferencia
+            de la ruta óptima, este cálculo busca visitar la mayor cantidad de
+            destinos posibles y no llegar a un destino final específico.
           </p>
         </div>
       </div>
 
       <form onSubmit={onSubmit} className="sr-form-grid">
         <Input
-          label="Presupuesto USD"
+          label="Presupuesto inicial en USD"
           type="number"
           min="0"
           value={String(presupuesto)}
@@ -44,7 +46,7 @@ export function ItinerariesPanel({
         />
 
         <Input
-          label="Tiempo disponible en horas"
+          label="Tiempo total disponible en horas"
           type="number"
           min="0"
           value={String(tiempoHoras)}
@@ -52,7 +54,7 @@ export function ItinerariesPanel({
         />
 
         <Button type="submit" loading={loading} disabled={loading}>
-          Proponer itinerarios
+          Generar itinerarios
         </Button>
       </form>
 

@@ -1,4 +1,4 @@
-import { Card, Input } from '../../../../components/ui';
+import { Card, Select } from '../../../../components/ui';
 import type { TransportType } from '../../../../models/skyroute/planner.types';
 import { AIRCRAFT_OPTIONS } from '../constants/plannerOptions';
 
@@ -25,6 +25,13 @@ export function CommonPlannerFilters({
   onIncluirSecundariosChange,
   onToggleTransport,
 }: CommonPlannerFiltersProps) {
+  const airportOptions = airportCodes.map((code) => ({
+    value: code,
+    label: code,
+  }));
+
+  const hasAirports = airportOptions.length > 0;
+
   return (
     <Card className="sr-panel">
       <div className="sr-panel__header">
@@ -38,22 +45,22 @@ export function CommonPlannerFilters({
       </div>
 
       <div className="sr-common-filters-grid">
-        <Input
+        <Select
           label="Aeropuerto de origen"
-          list="airport-codes"
           value={origen}
-          onChange={(event) => onOrigenChange(event.target.value.toUpperCase())}
-          placeholder="BOG"
+          disabled={!hasAirports}
+          placeholder="Selecciona origen"
+          onChange={(event) => onOrigenChange(event.target.value)}
+          options={airportOptions}
         />
 
-        <Input
+        <Select
           label="Aeropuerto de destino"
-          list="airport-codes"
           value={destino}
-          onChange={(event) =>
-            onDestinoChange(event.target.value.toUpperCase())
-          }
-          placeholder="SCL"
+          disabled={!hasAirports}
+          placeholder="Selecciona destino"
+          onChange={(event) => onDestinoChange(event.target.value)}
+          options={airportOptions}
         />
 
         <label className="sr-checkbox-card">
@@ -75,12 +82,6 @@ export function CommonPlannerFilters({
         </label>
       </div>
 
-      <datalist id="airport-codes">
-        {airportCodes.map((code) => (
-          <option key={code} value={code} />
-        ))}
-      </datalist>
-
       <div className="sr-filter-row">
         <span>Tipos de aeronave permitidos:</span>
 
@@ -97,8 +98,8 @@ export function CommonPlannerFilters({
         ))}
 
         <small>
-          Si no seleccionas ningún tipo de aeronave, el sistema considerará
-          todas las opciones disponibles en la red.
+          Debe quedar seleccionado al menos un tipo de aeronave para ejecutar
+          los cálculos.
         </small>
       </div>
     </Card>

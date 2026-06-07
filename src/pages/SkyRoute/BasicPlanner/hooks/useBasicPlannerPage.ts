@@ -14,10 +14,13 @@ import type {
 } from '../../../../models/skyroute/planner.types';
 import { graphRepository } from '../../../../services/skyroute/graphRepository';
 import { plannerRepository } from '../../../../services/skyroute/plannerRepository';
+import { AIRCRAFT_OPTIONS } from '../constants/plannerOptions';
 import { selectedTransportsOrNull } from '../utils/plannerFormatters';
 import { buildTransportUsageValidation } from '../utils/transportValidation';
 
 type LoadingSection = 'optimal' | 'criteria' | 'itineraries' | null;
+
+const DEFAULT_SELECTED_TRANSPORTS: TransportType[] = [...AIRCRAFT_OPTIONS];
 
 export function useBasicPlannerPage() {
   const [summary, setSummary] = useState<NetworkSummary | null>(null);
@@ -31,8 +34,10 @@ export function useBasicPlannerPage() {
   const [criterio, setCriterio] = useState<PlannerCriterionInput>('costo');
   const [incluirSecundarios, setIncluirSecundarios] = useState(true);
 
+  // R2: el usuario debe tener al menos un tipo de aeronave seleccionado.
+  // Por defecto se habilitan todos para cumplir el enunciado y evitar estados vacíos.
   const [selectedTransports, setSelectedTransports] = useState<TransportType[]>(
-    [],
+    DEFAULT_SELECTED_TRANSPORTS,
   );
 
   /**
@@ -107,12 +112,35 @@ export function useBasicPlannerPage() {
     loadGraphData();
   }, []);
 
+  function hasSelectedTransports() {
+    if (selectedTransports.length > 0) {
+      return true;
+    }
+
+    setPlannerError('Selecciona al menos un tipo de aeronave.');
+    return false;
+  }
+
   function toggleTransport(transport: TransportType) {
-    setSelectedTransports((current) =>
-      current.includes(transport)
-        ? current.filter((item) => item !== transport)
-        : [...current, transport],
-    );
+    setSelectedTransports((current) => {
+      const isSelected = current.includes(transport);
+
+      if (!isSelected) {
+        return [...current, transport];
+      }
+
+      const next = current.filter((item) => item !== transport);
+
+      if (next.length === 0) {
+        setPlannerError(
+          'Debe quedar seleccionado al menos un tipo de aeronave.',
+        );
+        return current;
+      }
+
+      setPlannerError(null);
+      return next;
+    });
   }
 
   function toggleCriterion(option: PlannerCriterionInput) {
@@ -129,6 +157,10 @@ export function useBasicPlannerPage() {
 
   async function handleOptimalRoute(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasSelectedTransports()) {
+      return;
+    }
 
     try {
       setPlannerError(null);
@@ -159,6 +191,10 @@ export function useBasicPlannerPage() {
 
   async function handleRoutesByCriteria(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasSelectedTransports()) {
+      return;
+    }
 
     if (selectedCriteria.length === 0) {
       setPlannerError('Selecciona al menos un criterio.');
@@ -193,6 +229,10 @@ export function useBasicPlannerPage() {
 
   async function handleItineraries(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasSelectedTransports()) {
+      return;
+    }
 
     try {
       setPlannerError(null);

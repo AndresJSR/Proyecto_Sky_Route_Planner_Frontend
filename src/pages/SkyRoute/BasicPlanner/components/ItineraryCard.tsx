@@ -7,13 +7,39 @@ interface ItineraryCardProps {
   alternative: ItineraryAlternative;
 }
 
+function getAlternativeTitle(alternative: ItineraryAlternative): string {
+  if (alternative.criterio === 'presupuesto') {
+    return 'Alternativa por presupuesto';
+  }
+
+  if (alternative.criterio === 'tiempo') {
+    return 'Alternativa por tiempo';
+  }
+
+  return alternative.alternativa;
+}
+
+function getAlternativeDescription(alternative: ItineraryAlternative): string {
+  if (alternative.criterio === 'presupuesto') {
+    return 'Busca visitar la mayor cantidad de destinos sin exceder el presupuesto inicial.';
+  }
+
+  if (alternative.criterio === 'tiempo') {
+    return 'Busca visitar la mayor cantidad de destinos en el menor tiempo posible sin exceder el tiempo disponible.';
+  }
+
+  return alternative.alternativa;
+}
+
 export function ItineraryCard({ alternative }: ItineraryCardProps) {
+  const routeText = alternative.ruta.ruta.join(' → ');
+
   return (
     <Card className="sr-result-card">
       <div className="sr-result-card__header">
         <div>
-          <h3>{alternative.alternativa}</h3>
-          <p>Criterio de desempate: {alternative.criterio}</p>
+          <h3>{getAlternativeTitle(alternative)}</h3>
+          <p>{getAlternativeDescription(alternative)}</p>
         </div>
 
         <Badge
@@ -27,23 +53,23 @@ export function ItineraryCard({ alternative }: ItineraryCardProps) {
 
       <div className="sr-metrics-grid">
         <div>
-          <span>Costo total</span>
+          <span>Costo total del itinerario</span>
           <strong>${formatNumber(alternative.costo_total)} USD</strong>
         </div>
 
         <div>
-          <span>Tiempo requerido</span>
+          <span>Tiempo total requerido</span>
           <strong>{formatNumber(alternative.tiempo_requerido_min)} min</strong>
         </div>
 
         <div>
-          <span>Ruta</span>
-          <strong>{alternative.ruta.ruta.join(' → ')}</strong>
+          <span>Secuencia de viaje</span>
+          <strong>{routeText}</strong>
         </div>
       </div>
 
       <RouteResultCard
-        title="Detalle del itinerario"
+        title="Detalle de vuelos del itinerario"
         result={alternative.ruta}
       />
     </Card>
