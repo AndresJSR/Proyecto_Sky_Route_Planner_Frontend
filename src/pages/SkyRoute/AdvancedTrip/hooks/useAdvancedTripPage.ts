@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { plannerRepository } from '../../../../services/skyroute/plannerRepository';
-import { graphRepository } from '../../../../services/skyroute/graphRepository';
+import type { AirportDetail, AirportSummary, RouteDto } from '../../../../models/skyroute/graph.types';
 import type { TravelerState } from '../../../../models/skyroute/planner.types';
-import type { RouteDto, AirportDetail, AirportSummary } from '../../../../models/skyroute/graph.types';
+import { graphRepository } from '../../../../services/skyroute/graphRepository';
+import { plannerRepository } from '../../../../services/skyroute/plannerRepository';
+
+const LAST_TRAVELER_STATE_KEY = 'skyroute:last-traveler-state';
 
 export function useAdvancedTripPage() {
   const [estado, setEstado] = useState<TravelerState | null>(null);
@@ -156,8 +158,50 @@ export function useAdvancedTripPage() {
   }, [estado, neighbors]);
 
   useEffect(() => {
-    // no-op, maintained for potential side-effects
-  }, []);
+    let cancelled = false;
+
+    const hydrateTravelerState = async () => {
+      try {
+        const rawState = localStorage.getItem(LAST_TRAVELER_STATE_KEY);
+        if (!rawState) return;
+
+        const parsedState = JSON.parse(rawState) as TravelerState;
+        if (!parsedState || !parsedState.aeropuerto_actual) return;
+
+        if (cancelled) return;
+        setEstado(parsedState);
+
+        await loadGraphData();
+
+        const [routes, detail] = await Promise.all([
+          graphRepository.getRoutesFrom(parsedState.aeropuerto_actual, true),
+          graphRepository.getAirportInfo(parsedState.aeropuerto_actual),
+        ]);
+
+        if (cancelled) return;
+        setNeighbors(routes);
+        setAirportDetail(detail);
+      } catch (error) {
+        console.warn('No se pudo restaurar el estado del viaje.', error);
+      }
+    };
+
+    void hydrateTravelerState();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadGraphData]);
+
+  useEffect(() => {
+    if (!estado) return;
+
+    try {
+      localStorage.setItem(LAST_TRAVELER_STATE_KEY, JSON.stringify(estado));
+    } catch (error) {
+      console.warn('No se pudo persistir el estado del viaje.', error);
+    }
+  }, [estado]);
 
   // Local helpers to record jobs/activities in client-side state (not persisted)
   const registerLocalJob = useCallback(async (jobName: string, hours: number) => {
