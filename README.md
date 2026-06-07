@@ -254,6 +254,13 @@
 │   │   │   │   └── index.ts
 │   │   │   ├── index.ts
 │   │   │   ├── InterruptionHandler
+│   │   │   │   ├── components
+│   │   │   │   │   ├── BlockedRoutesTable.tsx
+│   │   │   │   │   ├── BlockRouteForm.tsx
+│   │   │   │   │   ├── InterruptionHandlerPage.tsx
+│   │   │   │   │   └── InterruptionSummaryCards.tsx
+│   │   │   │   ├── hooks
+│   │   │   │   │   └── useInterruptionHandlerPage.ts
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── InterruptionHandlerPage.css
 │   │   │   │   └── InterruptionHandlerPage.tsx
@@ -282,20 +289,20 @@
 │   │   │   ├── graphRepository.ts
 │   │   │   ├── index.ts
 │   │   │   ├── interruptionRepository.ts
+│   │   │   ├── interruptionService.ts
 │   │   │   ├── plannerRepository.ts
 │   │   │   └── reportRepository.ts
 │   │   └── userService.ts
-│   ├── src
-│   │   └── vite-env.d.ts
 │   ├── storage
 │   │   ├── LocalStorageProvider.tsx
 │   │   └── StorageProvider.tsx
-│   └── store
-│       ├── store.ts
-│       └── userSlice.ts
+│   ├── store
+│   │   ├── store.ts
+│   │   └── userSlice.ts
+│   └── vite-env.d.ts
 ├── tailwind.config.cjs
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.js
 
-53 directories, 245 files
+54 directories, 251 files
