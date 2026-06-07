@@ -1,4 +1,5 @@
 import { api } from './api';
+import type { ApiResponse } from '../../models/skyroute/api.types';
 import type {
   ItinerariesData,
   ItinerariesRequest,
@@ -174,22 +175,25 @@ export const plannerRepository = {
     presupuesto: number,
     tiempoTotalHoras: number = 120,
   ): Promise<TravelerState> => {
-    const response = await api.post<TravelerState>('/planner/iniciar-viaje', {
-      origen,
-      presupuesto_inicial: presupuesto,
-      tiempo_total_horas: tiempoTotalHoras,
-    });
+    const response = await api.post<ApiResponse<TravelerState>>(
+      '/planner/advanced/start',
+      {
+        origen,
+        presupuesto_inicial: presupuesto,
+        tiempo_total_horas: tiempoTotalHoras,
+      },
+    );
 
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
   advanceStep: async (
     estado: TravelerState,
     destino: string,
     aeronave: string,
-  ): Promise<StepAdvanceResult> => {
-    const response = await api.post<StepAdvanceResult>(
-      '/planner/avanzar-paso',
+  ): Promise<TravelerState> => {
+    const response = await api.post<ApiResponse<TravelerState>>(
+      '/planner/advanced/step',
       {
         estado,
         destino,
@@ -197,7 +201,7 @@ export const plannerRepository = {
       },
     );
 
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
   getStepRecommendation: async (
@@ -208,11 +212,46 @@ export const plannerRepository = {
     razon: string;
     beneficios: string[];
   }> => {
-    const response = await api.post('/planner/recomendacion-paso', {
+    const response = await api.post<ApiResponse<{
+      aeropuerto_recomendado: string;
+      razon: string;
+      beneficios: string[];
+    }>>('/planner/recomendacion-paso', {
       estado,
       criterio,
     });
 
-    return response.data;
+    return unwrapApiResponse(response.data);
+  },
+  acceptJob: async (
+    estado: TravelerState,
+    trabajo: string,
+    horas: number,
+  ): Promise<TravelerState> => {
+    const response = await api.post<ApiResponse<TravelerState>>(
+      '/planner/advanced/job',
+      {
+        estado,
+        trabajo_nombre: trabajo,
+        horas,
+      },
+    );
+
+    return unwrapApiResponse(response.data);
+  },
+
+  performActivity: async (
+    estado: TravelerState,
+    actividad: string,
+  ): Promise<TravelerState> => {
+    const response = await api.post<ApiResponse<TravelerState>>(
+      '/planner/advanced/activity',
+      {
+        estado,
+        actividad_nombre: actividad,
+      },
+    );
+
+    return unwrapApiResponse(response.data);
   },
 };

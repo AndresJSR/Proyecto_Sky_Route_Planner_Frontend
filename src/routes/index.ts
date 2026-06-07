@@ -10,6 +10,7 @@ const InterruptionHandler = lazy(
 const GraphViewer = lazy(
   () => import('../pages/SkyRoute/GraphViewer/GraphViewerPage'),
 );
+const AdvancedTrip = lazy(() => import('../pages/SkyRoute/AdvancedTrip'));
 
 const coreRoutes = [
   {
@@ -26,6 +27,11 @@ const coreRoutes = [
     path: '/graph-viewer',
     title: 'Graph Viewer',
     component: GraphViewer,
+  },
+  {
+    path: '/advanced-trip',
+    title: 'Advanced Trip',
+    component: AdvancedTrip,
   },
 ];
 

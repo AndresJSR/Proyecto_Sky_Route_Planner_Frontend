@@ -1,2 +1,2 @@
-// TODO: migrate SkyRoute content here.
-// TODO: migrate SkyRoute content here.
+export { AdvancedTripPage as default } from './AdvancedTripPage';
+export { AdvancedTripPage } from './AdvancedTripPage';

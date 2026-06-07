@@ -12,6 +12,7 @@ interface GraphVisualizationPanelProps {
   routes: RouteDto[];
   loading: boolean;
   error: string | null;
+  highlightRoute?: RouteDto | null;
   onAirportSelect: (airport: AirportSummary | null) => void;
   onRouteSelect: (route: RouteDto | null) => void;
 }
@@ -73,6 +74,7 @@ export function GraphVisualizationPanel({
   routes,
   loading,
   error,
+  highlightRoute,
   onAirportSelect,
   onRouteSelect,
 }: GraphVisualizationPanelProps) {
@@ -212,6 +214,16 @@ export function GraphVisualizationPanel({
             'target-arrow-color': '#2563eb',
           },
         },
+        {
+          selector: 'edge.highlighted',
+          style: {
+            width: 8,
+            'line-color': '#10b981',
+            'target-arrow-color': '#10b981',
+            'transition-property': 'line-color, width',
+            'transition-duration': '200ms',
+          },
+        },
       ],
     });
 
@@ -257,9 +269,6 @@ export function GraphVisualizationPanel({
         fit: true,
         padding: CY_GRAPH_CONFIG.layoutPadding,
       }).run();
-
-      cy.fit(undefined, CY_GRAPH_CONFIG.layoutPadding);
-      cy.center();
     }, 120);
 
     return () => {
@@ -268,6 +277,26 @@ export function GraphVisualizationPanel({
       cyRef.current = null;
     };
   }, [airports.length, elements]);
+
+  useEffect(() => {
+    if (!cyRef.current || !routes.length) return;
+
+    cyRef.current.edges().removeClass('highlighted');
+
+    if (!highlightRoute) return;
+
+    cyRef.current
+      .edges()
+      .filter((edge) => {
+        const route = edge.data('route') as RouteDto;
+        return (
+          route.origen === highlightRoute.origen &&
+          route.destino === highlightRoute.destino
+        );
+      })
+      .addClass('highlighted')
+      .select();
+  }, [highlightRoute, routes.length]);
 
   if (error) {
     return (

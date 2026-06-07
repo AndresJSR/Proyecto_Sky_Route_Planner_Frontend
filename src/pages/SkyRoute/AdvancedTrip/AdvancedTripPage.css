@@ -1,2 +1,8 @@
+.sr-page { padding: 1rem; }
+.sr-two-columns { display: grid; grid-template-columns: 1fr 420px; gap: 1rem; }
+.sr-form-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+.sr-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
+.sr-panel { padding: 1rem; }
+.sr-panel__header h2 { margin: 0; }
 /* TODO: migrate SkyRoute content here. */
 /* TODO: migrate SkyRoute content here. */
