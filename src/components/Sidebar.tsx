@@ -189,6 +189,36 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       Advanced Trip
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/reports"
+                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        pathname.includes('reports') &&
+                        'bg-graydark dark:bg-meta-4'
+                      }`}
+                    >
+                      <svg
+                        className="fill-current"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 3H14L19 8V20C19 21.1 18.1 22 17 22H6C4.9 22 4 21.1 4 20V5C4 3.9 4.9 3 6 3ZM13 4.5V9H17.5"
+                          fill=""
+                        />
+                        <path
+                          d="M8 12H16M8 16H16"
+                          stroke=""
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      Reportes
+                    </NavLink>
+                  </li>
                   {/* <!-- Menu Item Interruption Handler --> */}
                   {/* resto del menú */}
                 </ul>
