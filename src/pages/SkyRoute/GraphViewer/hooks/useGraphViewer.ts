@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
+  AirportDetail,
   AirportSummary,
   NetworkSummary,
   RouteDto,
@@ -11,11 +12,16 @@ interface UseGraphViewerReturn {
   airports: AirportSummary[];
   routes: RouteDto[];
   loading: boolean;
+  detailLoading: boolean;
   error: string | null;
-  selectedAirport: AirportSummary | null;
+  detailError: string | null;
+
+  selectedAirport: AirportDetail | null;
   selectedRoute: RouteDto | null;
+
   setSelectedAirport: (airport: AirportSummary | null) => void;
   setSelectedRoute: (route: RouteDto | null) => void;
+
   filterHubsOnly: boolean;
   setFilterHubsOnly: (value: boolean) => void;
 }
@@ -26,13 +32,17 @@ export function useGraphViewer(): UseGraphViewerReturn {
   const [routes, setRoutes] = useState<RouteDto[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
-  const [selectedAirport, setSelectedAirport] = useState<AirportSummary | null>(
+  const [error, setError] = useState<string | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  const [selectedAirportDetail, setSelectedAirportDetail] =
+    useState<AirportDetail | null>(null);
+
+  const [selectedRoute, setSelectedRouteState] = useState<RouteDto | null>(
     null,
   );
-
-  const [selectedRoute, setSelectedRoute] = useState<RouteDto | null>(null);
 
   const [filterHubsOnly, setFilterHubsOnly] = useState(false);
 
@@ -67,6 +77,53 @@ export function useGraphViewer(): UseGraphViewerReturn {
     fetchGraphData();
   }, []);
 
+  const setSelectedAirport = useCallback(
+    async (airport: AirportSummary | null) => {
+      setSelectedRouteState(null);
+      setDetailError(null);
+
+      if (!airport) {
+        setSelectedAirportDetail(null);
+        return;
+      }
+
+      try {
+        setDetailLoading(true);
+
+        const detail = await graphRepository.getAirportInfo(airport.id);
+
+        setSelectedAirportDetail(detail);
+      } catch (detailFetchError) {
+        const message =
+          detailFetchError instanceof Error
+            ? detailFetchError.message
+            : 'No se pudo cargar el detalle del aeropuerto.';
+
+        setDetailError(message);
+
+        setSelectedAirportDetail({
+          ...airport,
+          costoAlojamiento: 0,
+          costoAlimentacion: 0,
+          aerolineas: [],
+          actividades: [],
+          trabajos: [],
+          gradoSalida: 0,
+          gradoEntrada: 0,
+        });
+      } finally {
+        setDetailLoading(false);
+      }
+    },
+    [],
+  );
+
+  const setSelectedRoute = useCallback((route: RouteDto | null) => {
+    setSelectedAirportDetail(null);
+    setDetailError(null);
+    setSelectedRouteState(route);
+  }, []);
+
   const filteredAirports = useMemo(() => {
     if (!filterHubsOnly) return airports;
 
@@ -90,11 +147,16 @@ export function useGraphViewer(): UseGraphViewerReturn {
     airports: filteredAirports,
     routes: filteredRoutes,
     loading,
+    detailLoading,
     error,
-    selectedAirport,
+    detailError,
+
+    selectedAirport: selectedAirportDetail,
     selectedRoute,
+
     setSelectedAirport,
     setSelectedRoute,
+
     filterHubsOnly,
     setFilterHubsOnly,
   };

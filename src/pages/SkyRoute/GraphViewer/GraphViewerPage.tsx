@@ -16,6 +16,8 @@ export default function GraphViewerPage() {
     selectedRoute,
     setSelectedAirport,
     setSelectedRoute,
+    detailLoading,
+    detailError,
     filterHubsOnly,
     setFilterHubsOnly,
   } = useGraphViewer();
@@ -87,7 +89,11 @@ export default function GraphViewerPage() {
           {selectedRoute ? (
             <RouteDetailsPanel route={selectedRoute} />
           ) : (
-            <AirportDetailsPanel airport={selectedAirport} />
+            <AirportDetailsPanel
+              airport={selectedAirport}
+              loading={detailLoading}
+              error={detailError}
+            />
           )}
         </div>
       </section>
