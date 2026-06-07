@@ -140,6 +140,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </NavLink>
                   </li>
                   {/* <!-- Menu Item Interruption Handler --> */}
+                                    <li>
+                    <NavLink
+                      to="/graph-viewer"
+                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        pathname.includes('graph-viewer') &&
+                        'bg-graydark dark:bg-meta-4'
+                      }`}
+                    >
+                      <svg
+                        className="fill-current"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M4 7C5.10457 7 6 6.10457 6 5C6 3.89543 5.10457 3 4 3C2.89543 3 2 3.89543 2 5C2 6.10457 2.89543 7 4 7Z" fill="" />
+                        <path d="M4 17C5.10457 17 6 16.1046 6 15C6 13.8954 5.10457 13 4 13C2.89543 13 2 13.8954 2 15C2 16.1046 2.89543 17 4 17Z" fill="" />
+                        <path d="M20 17C21.1046 17 22 16.1046 22 15C22 13.8954 21.1046 13 20 13C18.8954 13 18 13.8954 18 15C18 16.1046 18.8954 17 20 17Z" fill="" />
+                        <path d="M13 4C14.1046 4 15 3.10457 15 2C15 0.89543 14.1046 0 13 0C11.8954 0 11 0.89543 11 2C11 3.10457 11.8954 4 13 4Z" fill="" />
+                        <path d="M6 7H11" stroke="" strokeWidth="2" strokeLinecap="round" />
+                        <path d="M11 2H18" stroke="" strokeWidth="2" strokeLinecap="round" />
+                        <path d="M11 17H18" stroke="" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                      Graph Viewer
+                    </NavLink>
+                  </li>                  {/* <!-- Menu Item Interruption Handler --> */}
                   {/* resto del menú */}
                 </ul>
                 {/* <!-- Menu Item Dashboard --> */}

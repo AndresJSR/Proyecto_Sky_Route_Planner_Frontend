@@ -1,8 +1,8 @@
 import { Card } from '../../../../components/ui';
-import type { AirportSummary } from '../../../../models/skyroute/graph.types';
+import type { AirportDetail } from '../../../../models/skyroute/graph.types';
 
 interface AirportDetailsPanelProps {
-  airport: AirportSummary | null;
+  airport: AirportDetail | null;
 }
 
 export function AirportDetailsPanel({ airport }: AirportDetailsPanelProps) {
@@ -69,11 +69,11 @@ export function AirportDetailsPanel({ airport }: AirportDetailsPanelProps) {
           </div>
         </div>
 
-        {airport.aeronaves && airport.aeronaves.length > 0 && (
+        {airport.aerolineas && airport.aerolineas.length > 0 && (
           <div className="pt-2 border-t border-gray-200">
             <h3 className="text-sm font-semibold text-gray-600 mb-2">Aerolíneas operando</h3>
             <div className="flex flex-wrap gap-2">
-              {airport.aeronaves.map((airline) => (
+              {airport.aerolineas.map((airline) => (
                 <span
                   key={airline}
                   className="inline-block bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 rounded-full"

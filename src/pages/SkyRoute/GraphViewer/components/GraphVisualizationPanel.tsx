@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import ForceGraph3D from 'force-graph';
-import * as THREE from 'three';
 import { Card, Spinner } from '../../../../components/ui';
 import type {
   AirportSummary,
@@ -74,7 +73,10 @@ export function GraphVisualizationPanel({
     if (!containerRef.current) return;
 
     // Create force-graph instance
-    const graph = ForceGraph3D()(containerRef.current)
+    // ForceGraph3D's type may require using `new` in TypeScript builds.
+    // Cast to any to call as a function after instantiation.
+    const GraphFactory: any = ForceGraph3D;
+    const graph = new GraphFactory()(containerRef.current)
       .graphData(graphData)
       .nodeId('id')
       .nodeVal('val')
