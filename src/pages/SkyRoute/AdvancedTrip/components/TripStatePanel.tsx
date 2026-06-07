@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function TripStatePanel({ estado, airportDetail, onRegisterJob, onPerformActivity }: Props) {
-  const [jobHours, setJobHours] = useState(1);
+  const [jobHours, setJobHours] = useState<Record<string, number>>({});
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -37,19 +37,19 @@ export function TripStatePanel({ estado, airportDetail, onRegisterJob, onPerform
       </div>
 
       <div className="sr-metrics-grid">
-        <div>
-          <span>Aeropuerto actual</span>
-          <strong>{estado.aeropuerto_actual}</strong>
+        <div className="rounded-3xl border border-slate-700 bg-slate-950/70 p-4 shadow-sm">
+          <span className="text-xs uppercase tracking-wide text-slate-400">Aeropuerto actual</span>
+          <strong className="mt-3 block text-2xl font-semibold text-white">{estado.aeropuerto_actual}</strong>
         </div>
 
-        <div>
-          <span>Presupuesto</span>
-          <strong>${estado.presupuesto_actual} USD</strong>
+        <div className="rounded-3xl border border-slate-700 bg-slate-950/70 p-4 shadow-sm">
+          <span className="text-xs uppercase tracking-wide text-slate-400">Presupuesto</span>
+          <strong className="mt-3 block text-2xl font-semibold text-white">${estado.presupuesto_actual} USD</strong>
         </div>
 
-        <div>
-          <span>Tiempo restante</span>
-          <strong>{estado.tiempo_restante_min} min</strong>
+        <div className="rounded-3xl border border-slate-700 bg-slate-950/70 p-4 shadow-sm">
+          <span className="text-xs uppercase tracking-wide text-slate-400">Tiempo restante</span>
+          <strong className="mt-3 block text-2xl font-semibold text-white">{estado.tiempo_restante_min} min</strong>
         </div>
       </div>
 
@@ -63,11 +63,11 @@ export function TripStatePanel({ estado, airportDetail, onRegisterJob, onPerform
             ) : (
               <div className="grid gap-2">
                 {airportDetail.trabajos.map((job) => (
-                  <div key={job.nombre} className="rounded-lg border p-3 bg-gray-50">
-                    <div className="flex items-center justify-between">
+                  <div key={job.nombre} className="rounded-2xl border border-slate-700 bg-slate-900 p-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="font-medium">{job.nombre}</p>
-                        <p className="text-xs text-gray-500">${job.tarifaHora}/h · máx. {job.maxHoras} h</p>
+                        <p className="font-semibold text-white">{job.nombre}</p>
+                        <p className="text-xs text-slate-400">${job.tarifaHora}/h · máx. {job.maxHoras} h</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -75,15 +75,18 @@ export function TripStatePanel({ estado, airportDetail, onRegisterJob, onPerform
                           type="number"
                           min={1}
                           max={job.maxHoras}
-                          value={jobHours}
-                          onChange={(e) => setJobHours(Number(e.target.value))}
-                          className="w-20 rounded border border-slate-300 bg-white px-2 py-1 text-sm text-bodydark1 outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                          value={jobHours[job.nombre] ?? 1}
+                          onChange={(e) => setJobHours((prev) => ({
+                            ...prev,
+                            [job.nombre]: Number(e.target.value) || 1,
+                          }))}
+                          className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-black outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         />
                         <Button onClick={async () => {
                           setActionError(null);
                           try {
                             setActionLoading(true);
-                            await onRegisterJob(job.nombre, jobHours);
+                            await onRegisterJob(job.nombre, jobHours[job.nombre] ?? 1);
                           } catch (err) {
                             setActionError(err instanceof Error ? err.message : String(err));
                           } finally {
@@ -106,10 +109,10 @@ export function TripStatePanel({ estado, airportDetail, onRegisterJob, onPerform
             ) : (
               <div className="grid gap-2">
                 {airportDetail.actividades.map((act) => (
-                  <div key={act.nombre} className="rounded-lg border p-3 bg-gray-50 flex items-center justify-between">
+                  <div key={act.nombre} className="rounded-2xl border border-slate-700 bg-slate-900 p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="font-medium">{act.nombre}</p>
-                      <p className="text-xs text-gray-500">{act.duracionMin} min · ${act.costoUSD}</p>
+                      <p className="font-semibold text-white">{act.nombre}</p>
+                      <p className="text-xs text-slate-400">{act.duracionMin} min · ${act.costoUSD}</p>
                     </div>
 
                     <Button onClick={async () => {

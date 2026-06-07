@@ -44,9 +44,9 @@ export function StepActionsPanel({ estado, neighbors, airportDetail, recommendat
           </div>
 
           {recommendation && (
-            <div className="rounded-lg border p-3 bg-yellow-50">
-              <p className="font-semibold">Recomendación: {recommendation.aeropuerto_recomendado}</p>
-              <p className="text-sm text-gray-600">Razón: {recommendation.razon}</p>
+            <div className="rounded-3xl border border-slate-700 bg-slate-950/70 p-4">
+              <p className="font-semibold text-white">Recomendación: {recommendation.aeropuerto_recomendado}</p>
+              <p className="text-sm text-slate-300">Razón: {recommendation.razon}</p>
             </div>
           )}
         </div>
@@ -59,14 +59,25 @@ export function StepActionsPanel({ estado, neighbors, airportDetail, recommendat
           ) : (
             <div className="grid gap-2">
               {neighbors.map((route, idx) => (
-                <div key={`${route.origen}-${route.destino}-${idx}`} className={`rounded-lg border p-3 flex items-center justify-between ${selectedRouteIdx === idx ? 'bg-blue-50' : 'bg-white'}`}>
+                <div
+                  key={`${route.origen}-${route.destino}-${idx}`}
+                  className={`rounded-2xl border p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${selectedRouteIdx === idx ? 'border-primary bg-slate-800' : 'border-slate-700 bg-slate-900'}`}
+                >
                   <div>
-                    <p className="font-medium">{route.origen} → {route.destino}</p>
-                    <p className="text-xs text-gray-500">{route.distanciaKm} km · costo base: ${route.costoBase}</p>
+                    <p className="font-semibold text-white">{route.origen} → {route.destino}</p>
+                    <p className="text-xs text-slate-400">{route.distanciaKm} km · costo base: ${route.costoBase}</p>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Select value={selectedRouteIdx === idx ? (selectedAircraft || '') : ''} onChange={(e) => { setSelectedRouteIdx(idx); setSelectedAircraft(e.target.value || null); }} options={route.aeronaves.map((a) => ({ value: a, label: a }))} placeholder={route.aeronaves[0] ?? 'N/A'} />
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <Select
+                      value={selectedRouteIdx === idx ? (selectedAircraft || '') : ''}
+                      onChange={(e) => {
+                        setSelectedRouteIdx(idx);
+                        setSelectedAircraft(e.target.value || null);
+                      }}
+                      options={route.aeronaves.map((a) => ({ value: a, label: a }))}
+                      placeholder={route.aeronaves[0] ?? 'N/A'}
+                    />
                     <Button onClick={() => { setSelectedRouteIdx(idx); setSelectedAircraft(route.aeronaves[0] ?? ''); }}>Seleccionar</Button>
                   </div>
                 </div>
