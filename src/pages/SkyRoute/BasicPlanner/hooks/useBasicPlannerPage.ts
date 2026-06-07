@@ -15,6 +15,7 @@ import type {
 import { graphRepository } from '../../../../services/skyroute/graphRepository';
 import { plannerRepository } from '../../../../services/skyroute/plannerRepository';
 import { selectedTransportsOrNull } from '../utils/plannerFormatters';
+import { buildTransportUsageValidation } from '../utils/transportValidation';
 
 type LoadingSection = 'optimal' | 'criteria' | 'itineraries' | null;
 
@@ -29,9 +30,21 @@ export function useBasicPlannerPage() {
   const [destino, setDestino] = useState('SCL');
   const [criterio, setCriterio] = useState<PlannerCriterionInput>('costo');
   const [incluirSecundarios, setIncluirSecundarios] = useState(true);
+
   const [selectedTransports, setSelectedTransports] = useState<TransportType[]>(
     [],
   );
+
+  /**
+   * R2:
+   * Cuando está activo, el backend debe calcular una ruta que use
+   * al menos una vez cada transporte seleccionado.
+   *
+   * Nota:
+   * Esto solo aplica a ruta óptima.
+   */
+  const [exigirTodosLosTransportes, setExigirTodosLosTransportes] =
+    useState(false);
 
   const [selectedCriteria, setSelectedCriteria] = useState<
     PlannerCriterionInput[]
@@ -57,6 +70,11 @@ export function useBasicPlannerPage() {
   const airportCodes = useMemo(
     () => airports.map((airport) => airport.id),
     [airports],
+  );
+
+  const optimalTransportValidation = useMemo(
+    () => buildTransportUsageValidation(selectedTransports, optimalResult),
+    [selectedTransports, optimalResult],
   );
 
   useEffect(() => {
@@ -105,6 +123,10 @@ export function useBasicPlannerPage() {
     );
   }
 
+  function toggleExigirTodosLosTransportes() {
+    setExigirTodosLosTransportes((current) => !current);
+  }
+
   async function handleOptimalRoute(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -118,6 +140,7 @@ export function useBasicPlannerPage() {
         criterio,
         incluirSecundarios,
         selectedTransportsOrNull(selectedTransports),
+        exigirTodosLosTransportes,
       );
 
       setOptimalResult(result);
@@ -128,6 +151,7 @@ export function useBasicPlannerPage() {
           : 'No se pudo calcular la ruta óptima.';
 
       setPlannerError(message);
+      setOptimalResult(null);
     } finally {
       setLoadingSection(null);
     }
@@ -161,6 +185,7 @@ export function useBasicPlannerPage() {
           : 'No se pudieron calcular las rutas por criterios.';
 
       setPlannerError(message);
+      setCriteriaResult(null);
     } finally {
       setLoadingSection(null);
     }
@@ -189,6 +214,7 @@ export function useBasicPlannerPage() {
           : 'No se pudieron proponer itinerarios.';
 
       setPlannerError(message);
+      setItineraryResult([]);
     } finally {
       setLoadingSection(null);
     }
@@ -206,6 +232,7 @@ export function useBasicPlannerPage() {
     criterio,
     incluirSecundarios,
     selectedTransports,
+    exigirTodosLosTransportes,
     selectedCriteria,
     presupuesto,
     tiempoHoras,
@@ -213,6 +240,7 @@ export function useBasicPlannerPage() {
     optimalResult,
     criteriaResult,
     itineraryResult,
+    optimalTransportValidation,
 
     loadingSection,
     plannerError,
@@ -222,11 +250,13 @@ export function useBasicPlannerPage() {
     setDestino,
     setCriterio,
     setIncluirSecundarios,
+    setExigirTodosLosTransportes,
     setPresupuesto,
     setTiempoHoras,
 
     toggleTransport,
     toggleCriterion,
+    toggleExigirTodosLosTransportes,
     handleOptimalRoute,
     handleRoutesByCriteria,
     handleItineraries,

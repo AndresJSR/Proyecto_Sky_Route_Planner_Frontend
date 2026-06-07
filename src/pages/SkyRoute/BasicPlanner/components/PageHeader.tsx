@@ -4,11 +4,14 @@ export function PageHeader() {
   return (
     <section className="sr-hero">
       <div>
-        <span className="sr-eyebrow">SkyRoute Planner</span>
-        <h1>Planificación básica de rutas</h1>
+        <span className="sr-eyebrow">SkyPlanner · R2</span>
+
+        <h1>Planificación básica de rutas aéreas</h1>
+
         <p>
-          Prueba visual de los endpoints de R2: ruta óptima, rutas por criterios
-          e itinerarios con restricciones de presupuesto y tiempo.
+          Módulo para calcular rutas óptimas, comparar criterios de
+          planificación y generar itinerarios considerando restricciones de
+          transporte, presupuesto y tiempo.
         </p>
       </div>
 
@@ -17,7 +20,7 @@ export function PageHeader() {
           variant="info"
           label={
             <>
-              Backend esperado: <strong>localhost:8000</strong>
+              <strong>API activa en localhost:8000</strong>
             </>
           }
           className="sr-status-pill"

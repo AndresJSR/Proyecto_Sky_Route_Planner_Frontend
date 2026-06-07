@@ -29,16 +29,17 @@ export function CommonPlannerFilters({
     <Card className="sr-panel">
       <div className="sr-panel__header">
         <div>
-          <h2>Parámetros comunes</h2>
+          <h2>1. Filtros comunes de planificación</h2>
           <p>
-            Estos filtros se usan en las pruebas de ruta óptima y criterios.
+            Define origen, destino, aeropuertos permitidos y tipos de aeronave
+            disponibles para los cálculos de rutas e itinerarios.
           </p>
         </div>
       </div>
 
       <div className="sr-common-filters-grid">
         <Input
-          label="Origen"
+          label="Aeropuerto de origen"
           list="airport-codes"
           value={origen}
           onChange={(event) => onOrigenChange(event.target.value.toUpperCase())}
@@ -46,7 +47,7 @@ export function CommonPlannerFilters({
         />
 
         <Input
-          label="Destino"
+          label="Aeropuerto de destino"
           list="airport-codes"
           value={destino}
           onChange={(event) =>
@@ -63,7 +64,14 @@ export function CommonPlannerFilters({
               onIncluirSecundariosChange(event.target.checked)
             }
           />
-          <span>Incluir aeropuertos secundarios</span>
+
+          <span>
+            <strong>Incluir aeropuertos secundarios</strong>
+            <small>
+              Permite que el algoritmo use aeropuertos no principales como
+              escalas o destinos intermedios.
+            </small>
+          </span>
         </label>
       </div>
 
@@ -74,7 +82,7 @@ export function CommonPlannerFilters({
       </datalist>
 
       <div className="sr-filter-row">
-        <span>Tipos de transporte:</span>
+        <span>Tipos de aeronave permitidos:</span>
 
         {AIRCRAFT_OPTIONS.map((transport) => (
           <label className="sr-check-card" key={transport}>
@@ -83,11 +91,15 @@ export function CommonPlannerFilters({
               checked={selectedTransports.includes(transport)}
               onChange={() => onToggleTransport(transport)}
             />
+
             {transport}
           </label>
         ))}
 
-        <small>Si no seleccionas ninguno, se usan todos.</small>
+        <small>
+          Si no seleccionas ningún tipo de aeronave, el sistema considerará
+          todas las opciones disponibles en la red.
+        </small>
       </div>
     </Card>
   );

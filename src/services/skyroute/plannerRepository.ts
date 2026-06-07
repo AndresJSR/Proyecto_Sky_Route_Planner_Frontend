@@ -24,6 +24,10 @@ export type {
   TravelerState,
 } from '../../models/skyroute/planner.types';
 
+type OptimalRouteRequestWithTransportRequirement = OptimalRouteRequest & {
+  exigir_todos_los_transportes?: boolean;
+};
+
 function unwrapApiResponse<T>(response: {
   ok: boolean;
   data: T | null;
@@ -77,13 +81,15 @@ export const plannerRepository = {
     criterio: PlannerCriterionInput,
     incluirSecundarios: boolean = true,
     tiposTransporte?: TransportType[] | null,
+    exigirTodosLosTransportes: boolean = false,
   ): Promise<RouteResult | null> => {
-    const body: OptimalRouteRequest = {
+    const body: OptimalRouteRequestWithTransportRequirement = {
       origen,
       destino,
       criterio,
       incluir_secundarios: incluirSecundarios,
       tipos_transporte: tiposTransporte ?? null,
+      exigir_todos_los_transportes: exigirTodosLosTransportes,
     };
 
     const response = await api.post<OptimalRouteResponse>(
@@ -212,17 +218,20 @@ export const plannerRepository = {
     razon: string;
     beneficios: string[];
   }> => {
-    const response = await api.post<ApiResponse<{
-      aeropuerto_recomendado: string;
-      razon: string;
-      beneficios: string[];
-    }>>('/planner/recomendacion-paso', {
+    const response = await api.post<
+      ApiResponse<{
+        aeropuerto_recomendado: string;
+        razon: string;
+        beneficios: string[];
+      }>
+    >('/planner/recomendacion-paso', {
       estado,
       criterio,
     });
 
     return unwrapApiResponse(response.data);
   },
+
   acceptJob: async (
     estado: TravelerState,
     trabajo: string,

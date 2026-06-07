@@ -1,13 +1,13 @@
-import "./BasicPlannerPage.css";
+import './BasicPlannerPage.css';
 
-import { CommonPlannerFilters } from "./components/CommonPlannerFilters";
-import { GraphSummaryPanel } from "./components/GraphSummaryPanel";
-import { ItinerariesPanel } from "./components/ItinerariesPanel";
-import { OptimalRoutePanel } from "./components/OptimalRoutePanel";
-import { PageHeader } from "./components/PageHeader";
-import { PlannerErrorAlert } from "./components/PlannerErrorAlert";
-import { RoutesByCriteriaPanel } from "./components/RoutesByCriteriaPanel";
-import { useBasicPlannerPage } from "./hooks/useBasicPlannerPage";
+import { CommonPlannerFilters } from './components/CommonPlannerFilters';
+import { GraphSummaryPanel } from './components/GraphSummaryPanel';
+import { ItinerariesPanel } from './components/ItinerariesPanel';
+import { OptimalRoutePanel } from './components/OptimalRoutePanel';
+import { PageHeader } from './components/PageHeader';
+import { PlannerErrorAlert } from './components/PlannerErrorAlert';
+import { RoutesByCriteriaPanel } from './components/RoutesByCriteriaPanel';
+import { useBasicPlannerPage } from './hooks/useBasicPlannerPage';
 
 export function BasicPlannerPage() {
   const {
@@ -22,6 +22,7 @@ export function BasicPlannerPage() {
     criterio,
     incluirSecundarios,
     selectedTransports,
+    exigirTodosLosTransportes,
     selectedCriteria,
     presupuesto,
     tiempoHoras,
@@ -29,6 +30,7 @@ export function BasicPlannerPage() {
     optimalResult,
     criteriaResult,
     itineraryResult,
+    optimalTransportValidation,
 
     loadingSection,
     plannerError,
@@ -43,6 +45,7 @@ export function BasicPlannerPage() {
 
     toggleTransport,
     toggleCriterion,
+    toggleExigirTodosLosTransportes,
     handleOptimalRoute,
     handleRoutesByCriteria,
     handleItineraries,
@@ -78,7 +81,10 @@ export function BasicPlannerPage() {
         <OptimalRoutePanel
           criterio={criterio}
           result={optimalResult}
-          loading={loadingSection === "optimal"}
+          loading={loadingSection === 'optimal'}
+          transportValidation={optimalTransportValidation}
+          exigirTodosLosTransportes={exigirTodosLosTransportes}
+          onToggleExigirTodosLosTransportes={toggleExigirTodosLosTransportes}
           onCriterioChange={setCriterio}
           onSubmit={handleOptimalRoute}
         />
@@ -86,7 +92,7 @@ export function BasicPlannerPage() {
         <RoutesByCriteriaPanel
           selectedCriteria={selectedCriteria}
           result={criteriaResult}
-          loading={loadingSection === "criteria"}
+          loading={loadingSection === 'criteria'}
           onToggleCriterion={toggleCriterion}
           onSubmit={handleRoutesByCriteria}
         />
@@ -96,7 +102,7 @@ export function BasicPlannerPage() {
         presupuesto={presupuesto}
         tiempoHoras={tiempoHoras}
         result={itineraryResult}
-        loading={loadingSection === "itineraries"}
+        loading={loadingSection === 'itineraries'}
         onPresupuestoChange={setPresupuesto}
         onTiempoHorasChange={setTiempoHoras}
         onSubmit={handleItineraries}

@@ -11,6 +11,8 @@
   box-sizing: border-box;
 }
 
+/* Header */
+
 .sr-hero {
   display: flex;
   align-items: flex-start;
@@ -49,6 +51,8 @@
   min-width: 240px;
 }
 
+/* Pills */
+
 .sr-status-pill,
 .sr-badge,
 .sr-chip {
@@ -70,6 +74,14 @@
   color: #bfdbfe;
   font-weight: 700;
 }
+
+.sr-chip {
+  padding: 6px 10px;
+  color: #dbeafe;
+  font-size: 0.82rem;
+}
+
+/* Panels */
 
 .sr-panel {
   min-width: 0;
@@ -106,6 +118,8 @@
   margin: 6px 0 0;
   color: #94a3b8;
 }
+
+/* Summary */
 
 .sr-summary-grid {
   display: grid;
@@ -159,12 +173,6 @@
   margin-top: 12px;
 }
 
-.sr-chip {
-  padding: 6px 10px;
-  color: #dbeafe;
-  font-size: 0.82rem;
-}
-
 .sr-routes-list {
   display: grid;
   gap: 10px;
@@ -186,9 +194,11 @@
   font-size: 0.86rem;
 }
 
+/* Filtros comunes */
+
 .sr-common-filters-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
   gap: 16px;
   align-items: end;
 }
@@ -197,24 +207,52 @@
   min-width: 0;
 }
 
+/* Corrección: el checkbox largo ocupa una fila completa */
 .sr-checkbox-card {
+  grid-column: 1 / -1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  min-height: 46px;
-  padding: 12px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 14px;
   background: rgba(2, 6, 23, 0.35);
   color: #dbeafe;
-  font-weight: 700;
-  white-space: nowrap;
+  cursor: pointer;
+  white-space: normal;
 }
 
 .sr-checkbox-card input {
-  width: auto;
-  margin: 0;
+  flex: 0 0 auto;
+  width: 16px !important;
+  height: 16px;
+  margin: 4px 0 0;
+  accent-color: #7c3aed;
 }
+
+.sr-checkbox-card span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sr-checkbox-card strong {
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.sr-checkbox-card small {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Forms */
 
 .sr-form-grid {
   display: grid;
@@ -260,6 +298,8 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
 }
 
+/* Fila de aeronaves */
+
 .sr-filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -296,6 +336,8 @@
   margin: 0;
 }
 
+/* Layout */
+
 .sr-two-columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -305,6 +347,8 @@
 .sr-two-columns > * {
   min-width: 0;
 }
+
+/* Alerts */
 
 .sr-alert {
   margin-bottom: 20px;
@@ -323,6 +367,8 @@
   color: #bfdbfe;
   font-weight: 800;
 }
+
+/* Resultados */
 
 .sr-result-card {
   min-width: 0;
@@ -374,6 +420,187 @@
   min-width: 0;
 }
 
+/* Overrides locales */
+
+.sr-page label,
+.sr-page .sr-common-filters-grid label,
+.sr-page .sr-form-grid label,
+.sr-page .sr-form-stack label {
+  color: #cbd5e1 !important;
+}
+
+.sr-page input,
+.sr-page select {
+  color: #f8fafc !important;
+  background: rgba(2, 6, 23, 0.62) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.sr-page input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1;
+}
+
+.sr-page select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+/* Validación de transportes */
+
+.sr-transport-validation {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.sr-transport-validation strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.sr-transport-validation p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.sr-transport-validation--neutral {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.sr-transport-validation--success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.sr-transport-validation--success strong {
+  color: #166534;
+}
+
+.sr-transport-validation--warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.sr-transport-validation--warning strong {
+  color: #92400e;
+}
+
+.sr-transport-validation__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sr-transport-validation__grid div {
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.sr-transport-validation__grid span {
+  display: block;
+  margin-bottom: 2px;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.sr-transport-validation__grid p {
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Checkbox de restricción R2 */
+
+.sr-transport-requirement {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  cursor: pointer;
+}
+
+.sr-transport-requirement input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+.sr-transport-requirement span {
+  display: grid;
+  gap: 2px;
+}
+
+.sr-transport-requirement strong {
+  color: #1e3a8a;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.sr-transport-requirement small {
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+/* Resumen de aeronaves usadas */
+
+.sr-route-transport-summary {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.16);
+}
+
+.sr-route-transport-summary span {
+  display: block;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.sr-route-transport-summary p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.sr-route-transport-summary__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sr-route-transport-summary__chips span {
+  display: inline-flex;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.18);
+  color: #e0e7ff;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* Responsive */
+
 @media (max-width: 1200px) {
   .sr-two-columns {
     grid-template-columns: 1fr;
@@ -402,7 +629,12 @@
 
   .sr-checkbox-card {
     grid-column: 1 / -1;
-    white-space: normal;
+  }
+}
+
+@media (max-width: 768px) {
+  .sr-transport-validation__grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -426,29 +658,4 @@
   .sr-panel__header {
     display: grid;
   }
-}
-/* Overrides locales para inputs de la pantalla Planner */
-
-.sr-page label,
-.sr-page .sr-common-filters-grid label,
-.sr-page .sr-form-grid label,
-.sr-page .sr-form-stack label {
-  color: #cbd5e1 !important;
-}
-
-.sr-page input,
-.sr-page select {
-  color: #f8fafc !important;
-  background: rgba(2, 6, 23, 0.62) !important;
-  border-color: rgba(148, 163, 184, 0.3) !important;
-}
-
-.sr-page input::placeholder {
-  color: #94a3b8 !important;
-  opacity: 1;
-}
-
-.sr-page select option {
-  color: #0f172a;
-  background: #ffffff;
 }
