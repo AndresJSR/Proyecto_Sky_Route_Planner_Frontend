@@ -17,6 +17,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "apexcharts": "^3.41.0",
     "axios": "^1.15.0",
+    "force-graph": "^1.51.4",
     "formik": "^2.4.9",
     "headlessui": "^0.0.0",
     "jsvectormap": "^1.5.3",
@@ -33,6 +34,7 @@
     "socket.io-client": "^4.8.3",
     "sort-by": "^0.0.2",
     "sweetalert2": "^11.26.24",
+    "three": "^0.184.0",
     "yup": "^1.7.1"
   },
   "devDependencies": {

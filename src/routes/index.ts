@@ -7,6 +7,9 @@ const BasicPlanner = lazy(
 const InterruptionHandler = lazy(
   () => import('../pages/SkyRoute/InterruptionHandler/InterruptionHandlerPage'),
 );
+const GraphViewer = lazy(
+  () => import('../pages/SkyRoute/GraphViewer/GraphViewerPage'),
+);
 
 const coreRoutes = [
   {
@@ -18,6 +21,11 @@ const coreRoutes = [
     path: '/interruption-handler',
     title: 'Interruption Handler',
     component: InterruptionHandler,
+  },
+  {
+    path: '/graph-viewer',
+    title: 'Graph Viewer',
+    component: GraphViewer,
   },
 ];
 
