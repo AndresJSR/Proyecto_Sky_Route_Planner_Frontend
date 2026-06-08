@@ -28,16 +28,6 @@ type GraphPopupData =
     }
   | null;
 
-/**
- * Parámetros principales del grafo.
- *
- * layoutName:
- * - 'circle'       → seguro para probar que el grafo renderiza.
- * - 'grid'         → ordenado en grilla.
- * - 'concentric'   → hubs/centrales más al centro.
- * - 'breadthfirst' → jerárquico.
- * - 'cose'         → automático tipo fuerza, más bonito pero más pesado.
- */
 const CY_GRAPH_CONFIG = {
   layoutName: 'circle',
 
@@ -51,6 +41,27 @@ const CY_GRAPH_CONFIG = {
   blockedRouteWidth: 5,
 
   layoutPadding: 80,
+};
+
+const AIRCRAFT_RATES: Record<
+  string,
+  {
+    costPerKm: number;
+    minutesPerKm: number;
+  }
+> = {
+  'Avión Comercial': {
+    costPerKm: 0.18,
+    minutesPerKm: 0.7,
+  },
+  'Avión Regional': {
+    costPerKm: 0.25,
+    minutesPerKm: 1.1,
+  },
+  Hélice: {
+    costPerKm: 0.12,
+    minutesPerKm: 2.5,
+  },
 };
 
 function getNumberValue(source: unknown, keys: string[]): number {
@@ -67,6 +78,86 @@ function getNumberValue(source: unknown, keys: string[]): number {
   }
 
   return 0;
+}
+
+function formatNumber(value: number, decimals = 2): string {
+  return new Intl.NumberFormat('es-CO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  }).format(value ?? 0);
+}
+
+function getRouteDistance(route: RouteDto): number {
+  return getNumberValue(route, ['distanciaKm', 'distancia_km']);
+}
+
+function getRouteMinimumStay(route: RouteDto): number {
+  return getNumberValue(route, [
+    'estanciaMinima',
+    'estancia_minima',
+    'estancia_minima_min',
+  ]);
+}
+
+function getRouteCostBase(route: RouteDto): number {
+  return getNumberValue(route, ['costoBase', 'costo_base']);
+}
+
+function getRouteAircraft(route: RouteDto): string[] {
+  const aircraft = route.aeronaves;
+
+  if (Array.isArray(aircraft) && aircraft.length > 0) {
+    return aircraft.filter((item): item is string => typeof item === 'string');
+  }
+
+  return [];
+}
+
+function isSubsidizedRoute(route: RouteDto): boolean {
+  return getRouteCostBase(route) === 0;
+}
+function getEstimatedCost(route: RouteDto, aircraft: string): number {
+  if (isSubsidizedRoute(route)) {
+    return 0;
+  }
+
+  const rate = AIRCRAFT_RATES[aircraft];
+
+  if (!rate) return 0;
+
+  return getRouteDistance(route) * rate.costPerKm;
+}
+
+function getEstimatedTime(route: RouteDto, aircraft: string): number {
+  const rate = AIRCRAFT_RATES[aircraft];
+
+  if (!rate) return 0;
+
+  return getRouteDistance(route) * rate.minutesPerKm;
+}
+
+function getMinimumEstimatedCost(route: RouteDto): number {
+  const aircraftOptions = getRouteAircraft(route);
+
+  if (aircraftOptions.length === 0) {
+    return 0;
+  }
+
+  return Math.min(
+    ...aircraftOptions.map((aircraft) => getEstimatedCost(route, aircraft)),
+  );
+}
+
+function getMinimumEstimatedTime(route: RouteDto): number {
+  const aircraftOptions = getRouteAircraft(route);
+
+  if (aircraftOptions.length === 0) {
+    return 0;
+  }
+
+  return Math.min(
+    ...aircraftOptions.map((aircraft) => getEstimatedTime(route, aircraft)),
+  );
 }
 
 export function GraphVisualizationPanel({
@@ -107,19 +198,25 @@ export function GraphVisualizationPanel({
       (route) => airportIds.has(route.origen) && airportIds.has(route.destino),
     );
 
-    const edges = validRoutes.map((route, index) => ({
-      data: {
-        id: `${route.origen}-${route.destino}-${index}`,
-        source: route.origen,
-        target: route.destino,
-        label: `${route.origen} → ${route.destino}`,
-        route,
-        distance: getNumberValue(route, ['distanciaKm', 'distancia_km']),
-        cost: getNumberValue(route, ['costoBase', 'costo_base']),
-        blocked: Boolean(route.bloqueada),
-      },
-      classes: route.bloqueada ? 'blocked-route' : 'normal-route',
-    }));
+    const edges = validRoutes.map((route, index) => {
+      const distance = getRouteDistance(route);
+
+      return {
+        data: {
+          id: `${route.origen}-${route.destino}-${index}`,
+          source: route.origen,
+          target: route.destino,
+
+          // Peso visible de la arista.
+          label: `${formatNumber(distance, 0)} km`,
+
+          route,
+          distance,
+          blocked: Boolean(route.bloqueada),
+        },
+        classes: route.bloqueada ? 'blocked-route' : 'normal-route',
+      };
+    });
 
     return [...nodes, ...edges];
   }, [airports, routes]);
@@ -183,12 +280,22 @@ export function GraphVisualizationPanel({
         {
           selector: 'edge',
           style: {
+            label: 'data(label)',
             width: CY_GRAPH_CONFIG.routeWidth,
-            'line-color': 'rgba(71, 85, 105, 0.55)',
-            'target-arrow-color': 'rgba(71, 85, 105, 0.8)',
+            'line-color': 'rgba(148, 163, 184, 0.48)',
+            'target-arrow-color': 'rgba(148, 163, 184, 0.75)',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'arrow-scale': 1.1,
+
+            // Etiqueta de distancia sobre la arista.
+            color: '#e5e7eb',
+            'font-size': 9,
+            'font-weight': 700,
+            'text-rotation': 'autorotate',
+            'text-margin-y': -8,
+            'text-outline-color': '#020617',
+            'text-outline-width': 3,
           },
         },
         {
@@ -212,6 +319,7 @@ export function GraphVisualizationPanel({
             width: 7,
             'line-color': '#2563eb',
             'target-arrow-color': '#2563eb',
+            color: '#ffffff',
           },
         },
         {
@@ -220,6 +328,7 @@ export function GraphVisualizationPanel({
             width: 8,
             'line-color': '#10b981',
             'target-arrow-color': '#10b981',
+            color: '#ffffff',
             'transition-property': 'line-color, width',
             'transition-duration': '200ms',
           },
@@ -284,7 +393,7 @@ export function GraphVisualizationPanel({
   useEffect(() => {
     if (!cyRef.current || !routes.length) return;
 
-    cyRef.current.edges().removeClass('highlighted');
+    cyRef.current.edges().removeClass('highlighted').unselect();
 
     if (!highlightRoute) return;
 
@@ -387,22 +496,46 @@ export function GraphVisualizationPanel({
                   <div>
                     <small>Distancia</small>
                     <strong>
-                      {getNumberValue(popupData.route, [
-                        'distanciaKm',
-                        'distancia_km',
-                      ])}{' '}
-                      km
+                      {formatNumber(getRouteDistance(popupData.route), 0)} km
+                    </strong>
+                  </div>
+                  <div>
+                    <small>Estancia mínima</small>
+                    <strong>
+                      {formatNumber(getRouteMinimumStay(popupData.route), 0)}{' '}
+                      min
                     </strong>
                   </div>
 
                   <div>
-                    <small>Costo base</small>
+                    <small>
+                      {isSubsidizedRoute(popupData.route)
+                        ? 'Costo con subsidio'
+                        : 'Costo estimado desde'}
+                    </small>
+
                     <strong>
-                      $
-                      {getNumberValue(popupData.route, [
-                        'costoBase',
-                        'costo_base',
-                      ])}
+                      ${formatNumber(getMinimumEstimatedCost(popupData.route))}{' '}
+                      USD
+                    </strong>
+                  </div>
+
+                  <div>
+                    <small>Tiempo mínimo estimado</small>
+                    <strong>
+                      {formatNumber(
+                        getMinimumEstimatedTime(popupData.route),
+                        0,
+                      )}{' '}
+                      min
+                    </strong>
+                  </div>
+
+                  <div>
+                    <small>Aeronaves</small>
+                    <strong>
+                      {getRouteAircraft(popupData.route).join(', ') ||
+                        'No registradas'}
                     </strong>
                   </div>
 

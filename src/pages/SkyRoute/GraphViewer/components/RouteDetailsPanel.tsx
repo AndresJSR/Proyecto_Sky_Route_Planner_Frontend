@@ -5,6 +5,31 @@ interface RouteDetailsPanelProps {
   route: RouteDto | null;
 }
 
+const AIRCRAFT_RATES: Record<
+  string,
+  {
+    costPerKm: number;
+    minutesPerKm: number;
+    description: string;
+  }
+> = {
+  'Avión Comercial': {
+    costPerKm: 0.18,
+    minutesPerKm: 0.7,
+    description: 'Rápido y eficiente',
+  },
+  'Avión Regional': {
+    costPerKm: 0.25,
+    minutesPerKm: 1.1,
+    description: 'Flexible',
+  },
+  Hélice: {
+    costPerKm: 0.12,
+    minutesPerKm: 2.5,
+    description: 'Económico',
+  },
+};
+
 function getNumberValue(source: unknown, keys: string[]): number | null {
   if (!source || typeof source !== 'object') return null;
 
@@ -43,14 +68,59 @@ function formatNumber(value: number | null, suffix = ''): string {
   return `${value.toFixed(2).replace(/\.00$/, '')}${suffix}`;
 }
 
-function getAircraftDescription(aircraft: string): string {
-  const descriptions: Record<string, string> = {
-    'Avión Comercial': 'Rápido y eficiente',
-    'Avión Regional': 'Flexible',
-    Hélice: 'Económico',
-  };
+function formatMoney(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return 'N/A';
 
-  return descriptions[aircraft] ?? 'Disponible';
+  return `$${formatNumber(value)} USD`;
+}
+
+function getAircraftOptions(route: RouteDto): string[] {
+  const aircraft = route.aeronaves ?? [];
+
+  return aircraft.filter((item): item is string => typeof item === 'string');
+}
+
+function getEstimatedCost(
+  distance: number | null,
+  aircraft: string,
+  isSubsidized: boolean,
+): number | null {
+  if (distance === null) return null;
+
+  if (isSubsidized) {
+    return 0;
+  }
+
+  const rate = AIRCRAFT_RATES[aircraft];
+
+  if (!rate) return null;
+
+  return distance * rate.costPerKm;
+}
+
+function getEstimatedTime(
+  distance: number | null,
+  aircraft: string,
+): number | null {
+  if (distance === null) return null;
+
+  const rate = AIRCRAFT_RATES[aircraft];
+
+  if (!rate) return null;
+
+  return distance * rate.minutesPerKm;
+}
+
+function getMinimumValue(values: Array<number | null>): number | null {
+  const validValues = values.filter(
+    (value): value is number => typeof value === 'number',
+  );
+
+  if (validValues.length === 0) {
+    return null;
+  }
+
+  return Math.min(...validValues);
 }
 
 export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
@@ -69,15 +139,29 @@ export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
   }
 
   const distance = getNumberValue(route, ['distanciaKm', 'distancia_km']);
-  const cost = getNumberValue(route, ['costoBase', 'costo_base']);
+
   const minimumStay = getNumberValue(route, [
     'estanciaMinima',
     'estancia_minima',
     'estancia_minima_min',
   ]);
 
+  const costBase = getNumberValue(route, ['costoBase', 'costo_base']);
   const isBlocked = getBooleanValue(route, ['bloqueada']);
-  const isSubsidized = getBooleanValue(route, ['subsidiada']) || cost === 0;
+  const isSubsidized = getBooleanValue(route, ['subsidiada']) || costBase === 0;
+
+  const aircraftOptions = getAircraftOptions(route);
+
+  const estimatedCosts = aircraftOptions.map((aircraft) =>
+    getEstimatedCost(distance, aircraft, isSubsidized),
+  );
+
+  const estimatedTimes = aircraftOptions.map((aircraft) =>
+    getEstimatedTime(distance, aircraft),
+  );
+
+  const minimumEstimatedCost = getMinimumValue(estimatedCosts);
+  const minimumEstimatedTime = getMinimumValue(estimatedTimes);
 
   return (
     <Card className="sr-panel sr-panel--details">
@@ -123,7 +207,7 @@ export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
             Métricas principales
           </h3>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <span className="text-xs font-semibold text-gray-500">
                 Distancia
@@ -135,19 +219,28 @@ export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
 
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <span className="text-xs font-semibold text-gray-500">
-                Costo base
+                Estancia mínima
               </span>
               <p className="mt-1 text-lg font-bold text-primary">
-                {cost === null ? 'N/A' : `$${formatNumber(cost)}`}
+                {formatNumber(minimumStay, ' min')}
               </p>
             </div>
 
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <span className="text-xs font-semibold text-gray-500">
-                Estancia mínima
+                Costo estimado desde
               </span>
               <p className="mt-1 text-lg font-bold text-primary">
-                {formatNumber(minimumStay, ' min')}
+                {formatMoney(minimumEstimatedCost)}
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <span className="text-xs font-semibold text-gray-500">
+                Tiempo mínimo estimado
+              </span>
+              <p className="mt-1 text-lg font-bold text-primary">
+                {formatNumber(minimumEstimatedTime, ' min')}
               </p>
             </div>
           </div>
@@ -158,22 +251,42 @@ export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
             Aeronaves disponibles
           </h3>
 
-          {route.aeronaves.length > 0 ? (
+          {aircraftOptions.length > 0 ? (
             <div className="grid gap-2">
-              {route.aeronaves.map((aircraft) => (
-                <div
-                  key={aircraft}
-                  className="flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 p-3"
-                >
-                  <span className="text-sm font-semibold text-blue-900">
-                    {aircraft}
-                  </span>
+              {aircraftOptions.map((aircraft) => {
+                const estimatedCost = getEstimatedCost(
+                  distance,
+                  aircraft,
+                  isSubsidized,
+                );
 
-                  <span className="text-xs font-medium text-blue-600">
-                    {getAircraftDescription(aircraft)}
-                  </span>
-                </div>
-              ))}
+                const estimatedTime = getEstimatedTime(distance, aircraft);
+                const aircraftInfo = AIRCRAFT_RATES[aircraft];
+
+                return (
+                  <div
+                    key={aircraft}
+                    className="rounded-lg border border-blue-100 bg-blue-50 p-3"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-semibold text-blue-900">
+                        {aircraft}
+                      </span>
+
+                      <span className="text-xs font-medium text-blue-600">
+                        {aircraftInfo?.description ?? 'Disponible'}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-1 gap-2 text-xs text-blue-700 md:grid-cols-2">
+                      <span>Costo estimado: {formatMoney(estimatedCost)}</span>
+                      <span>
+                        Tiempo estimado: {formatNumber(estimatedTime, ' min')}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-gray-500">
@@ -193,9 +306,8 @@ export function RouteDetailsPanel({ route }: RouteDetailsPanelProps) {
                     Ruta subsidiada
                   </p>
                   <p className="text-xs text-green-700">
-                    Esta ruta tiene costo cero o está marcada como subsidiada.
-                    Recuerda validar la restricción del 20% de la distancia
-                    total del viaje.
+                    Esta ruta tiene costo estimado cero. Recuerda validar la
+                    restricción del 20% de la distancia total del viaje.
                   </p>
                 </div>
               </div>

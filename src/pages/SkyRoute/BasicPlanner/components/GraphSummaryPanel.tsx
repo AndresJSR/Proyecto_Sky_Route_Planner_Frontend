@@ -4,6 +4,7 @@ import type {
   NetworkSummary,
   RouteDto,
 } from '../../../../models/skyroute/graph.types';
+import { AIRCRAFT_OPTIONS } from '../constants/plannerOptions';
 import { formatNumber, getNumberValue } from '../utils/plannerFormatters';
 
 interface GraphSummaryPanelProps {
@@ -14,8 +15,73 @@ interface GraphSummaryPanelProps {
   error: string | null;
 }
 
+const AIRCRAFT_RATES: Record<
+  string,
+  {
+    costPerKm: number;
+    minutesPerKm: number;
+  }
+> = {
+  'Avión Comercial': {
+    costPerKm: 0.18,
+    minutesPerKm: 0.7,
+  },
+  'Avión Regional': {
+    costPerKm: 0.25,
+    minutesPerKm: 1.1,
+  },
+  Hélice: {
+    costPerKm: 0.12,
+    minutesPerKm: 2.5,
+  },
+};
+
 function getRouteValue(route: RouteDto, keys: string[]): number {
   return getNumberValue(route, keys);
+}
+
+function getRouteAircraft(route: RouteDto): string[] {
+  const data = route as unknown as Record<string, unknown>;
+  const aircraft = data.aeronaves;
+
+  if (Array.isArray(aircraft) && aircraft.length > 0) {
+    return aircraft.filter((item): item is string => typeof item === 'string');
+  }
+
+  return [...AIRCRAFT_OPTIONS];
+}
+
+function isSubsidizedRoute(route: RouteDto): boolean {
+  const costBase = getRouteValue(route, ['costoBase', 'costo_base']);
+  return costBase === 0;
+}
+
+function getMinimumEstimatedCost(route: RouteDto): number {
+  if (isSubsidizedRoute(route)) {
+    return 0;
+  }
+
+  const distance = getRouteValue(route, ['distanciaKm', 'distancia_km']);
+  const aircraftOptions = getRouteAircraft(route);
+
+  const costs = aircraftOptions
+    .map((aircraft) => AIRCRAFT_RATES[aircraft])
+    .filter(Boolean)
+    .map((rate) => distance * rate.costPerKm);
+
+  return costs.length > 0 ? Math.min(...costs) : 0;
+}
+
+function getMinimumEstimatedTime(route: RouteDto): number {
+  const distance = getRouteValue(route, ['distanciaKm', 'distancia_km']);
+  const aircraftOptions = getRouteAircraft(route);
+
+  const times = aircraftOptions
+    .map((aircraft) => AIRCRAFT_RATES[aircraft])
+    .filter(Boolean)
+    .map((rate) => distance * rate.minutesPerKm);
+
+  return times.length > 0 ? Math.min(...times) : 0;
 }
 
 export function GraphSummaryPanel({
@@ -93,6 +159,15 @@ export function GraphSummaryPanel({
                   className="sr-chip"
                 />
               ))}
+
+              {airportCodes.length > 20 && (
+                <Badge
+                  label={`+${airportCodes.length - 20} más`}
+                  variant="info"
+                  size="sm"
+                  className="sr-chip"
+                />
+              )}
             </div>
           )}
         </div>
@@ -104,32 +179,47 @@ export function GraphSummaryPanel({
             <p>No hay rutas disponibles.</p>
           ) : (
             <div className="sr-routes-list">
-              {routes.slice(0, 6).map((route, index) => (
-                <div key={`${route.origen}-${route.destino}-${index}`}>
-                  <strong>
-                    {route.origen} → {route.destino}
-                  </strong>
+              {routes.slice(0, 6).map((route, index) => {
+                const distance = getRouteValue(route, [
+                  'distanciaKm',
+                  'distancia_km',
+                ]);
 
-                  <span>
-                    {formatNumber(
-                      getRouteValue(route, ['distanciaKm', 'distancia_km']),
-                    )}{' '}
-                    km · estancia{' '}
-                    {formatNumber(
-                      getRouteValue(route, [
-                        'estanciaMinima',
-                        'estancia_minima',
-                        'estancia_minima_min',
-                      ]),
-                      0,
-                    )}{' '}
-                    min · costo base $
-                    {formatNumber(
-                      getRouteValue(route, ['costoBase', 'costo_base']),
-                    )}
-                  </span>
-                </div>
-              ))}
+                const stay = getRouteValue(route, [
+                  'estanciaMinima',
+                  'estancia_minima',
+                  'estancia_minima_min',
+                ]);
+
+                const aircraft = getRouteAircraft(route);
+                const estimatedCost = getMinimumEstimatedCost(route);
+                const estimatedTime = getMinimumEstimatedTime(route);
+                const subsidized = isSubsidizedRoute(route);
+
+                return (
+                  <div key={`${route.origen}-${route.destino}-${index}`}>
+                    <strong>
+                      {route.origen} → {route.destino}
+                    </strong>
+
+                    <span>
+                      {formatNumber(distance, 0)} km · estancia{' '}
+                      {formatNumber(stay, 0)} min
+                    </span>
+
+                    <span>Aeronaves: {aircraft.join(', ')}</span>
+
+                    <span>
+                      {subsidized
+                        ? 'Ruta subsidiada · costo con subsidio $0 USD'
+                        : `Costo estimado desde $${formatNumber(
+                            estimatedCost,
+                          )} USD`}{' '}
+                      · tiempo mínimo {formatNumber(estimatedTime, 0)} min
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
