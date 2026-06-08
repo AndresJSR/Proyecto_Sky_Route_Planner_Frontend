@@ -8,7 +8,7 @@ interface Column<T> {
   render?: (value: T[keyof T], row: T) => ReactNode;
 }
 
-interface TableProps<T extends Record<string, unknown>> {
+interface TableProps<T extends object> {
   columns: Column<T>[];
   data: T[];
   loading?: boolean;
@@ -17,7 +17,7 @@ interface TableProps<T extends Record<string, unknown>> {
   emptyMessage?: string;
 }
 
-export function Table<T extends Record<string, unknown>>({
+export function Table<T extends object>({
   columns,
   data,
   loading = false,

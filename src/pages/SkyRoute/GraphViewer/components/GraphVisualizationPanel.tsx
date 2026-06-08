@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Spinner } from '../../../../components/ui';
 import type {
   AirportSummary,
@@ -370,7 +370,9 @@ export function GraphVisualizationPanel({
       onRouteSelectRef.current(null);
     });
 
-    window.setTimeout(() => {
+    const layoutTimeoutId = window.setTimeout(() => {
+      if (cy.destroyed()) return;
+
       cy.resize();
 
       cy.layout({
@@ -381,6 +383,7 @@ export function GraphVisualizationPanel({
     }, 120);
 
     return () => {
+      window.clearTimeout(layoutTimeoutId);
       cy.removeAllListeners();
       cy.destroy();
       cyRef.current = null;
