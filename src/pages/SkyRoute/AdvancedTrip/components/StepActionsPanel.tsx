@@ -123,6 +123,10 @@ function getVisitedAirports(estado: TravelerState): string[] {
   ]);
 }
 
+function isVisitedAirport(route: RouteDto, estado: TravelerState): boolean {
+  return getVisitedAirports(estado).includes(route.destino);
+}
+
 function getEstimatedCost(route: RouteDto, aircraft: string): number {
   if (isSubsidizedRoute(route)) {
     return 0;
@@ -250,6 +254,17 @@ function getSubsidizedRouteRestrictionMessage(
   return null;
 }
 
+function getVisitedAirportWarningMessage(
+  route: RouteDto,
+  estado: TravelerState,
+): string | null {
+  if (!isVisitedAirport(route, estado)) {
+    return null;
+  }
+
+  return 'Este aeropuerto ya fue visitado. Puedes volver, pero no contará como nuevo destino.';
+}
+
 function getAdvanceRestrictionMessage(
   route: RouteDto,
   aircraft: string,
@@ -283,12 +298,6 @@ function getAdvanceRestrictionMessage(
     return subsidizedRestriction;
   }
 
-  const visitedAirports = getVisitedAirports(estado);
-
-  if (visitedAirports.includes(route.destino)) {
-    return 'Este aeropuerto ya fue visitado. Evita repetir escalas.';
-  }
-
   return null;
 }
 
@@ -296,6 +305,14 @@ function SubsidizedBadge() {
   return (
     <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300">
       Subsidiada
+    </span>
+  );
+}
+
+function VisitedBadge() {
+  return (
+    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-300">
+      Visitado
     </span>
   );
 }
@@ -331,6 +348,11 @@ export function StepActionsPanel({
         )
       : 'Selecciona una ruta para continuar.';
 
+  const selectedWarning =
+    selectedRoute && estado
+      ? getVisitedAirportWarningMessage(selectedRoute, estado)
+      : null;
+
   const recommendedRoute = getRecommendationRoute(recommendation, neighbors);
 
   const recommendedRestriction =
@@ -340,6 +362,11 @@ export function StepActionsPanel({
           getSelectedAircraft(recommendedRoute, null),
           estado,
         )
+      : null;
+
+  const recommendedWarning =
+    recommendedRoute && estado
+      ? getVisitedAirportWarningMessage(recommendedRoute, estado)
       : null;
 
   const canAdvance =
@@ -434,6 +461,12 @@ export function StepActionsPanel({
                 {recommendedRoute && isSubsidizedRoute(recommendedRoute) && (
                   <SubsidizedBadge />
                 )}
+
+                {recommendedRoute &&
+                  estado &&
+                  isVisitedAirport(recommendedRoute, estado) && (
+                    <VisitedBadge />
+                  )}
               </div>
 
               {recommendedRoute ? (
@@ -470,6 +503,12 @@ export function StepActionsPanel({
                       Advertencia: {recommendedRestriction}
                     </p>
                   )}
+
+                  {recommendedWarning && !recommendedRestriction && (
+                    <p className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      Nota: {recommendedWarning}
+                    </p>
+                  )}
                 </>
               ) : (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
@@ -500,6 +539,7 @@ export function StepActionsPanel({
                 const isSelected = selectedRouteIdx === idx;
                 const distance = getRouteDistance(route);
                 const subsidized = isSubsidizedRoute(route);
+                const visited = isVisitedAirport(route, estado);
 
                 const currentAircraft = isSelected
                   ? getSelectedAircraft(route, selectedAircraft)
@@ -508,6 +548,11 @@ export function StepActionsPanel({
                 const restrictionMessage = getAdvanceRestrictionMessage(
                   route,
                   currentAircraft,
+                  estado,
+                );
+
+                const warningMessage = getVisitedAirportWarningMessage(
+                  route,
                   estado,
                 );
 
@@ -529,6 +574,7 @@ export function StepActionsPanel({
                         </p>
 
                         {subsidized && <SubsidizedBadge />}
+                        {visited && <VisitedBadge />}
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -541,6 +587,12 @@ export function StepActionsPanel({
                       {restrictionMessage && (
                         <p className="mt-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
                           {restrictionMessage}
+                        </p>
+                      )}
+
+                      {warningMessage && !restrictionMessage && (
+                        <p className="mt-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                          {warningMessage}
                         </p>
                       )}
                     </div>
@@ -585,6 +637,12 @@ export function StepActionsPanel({
           {selectedRoute && selectedRestriction && (
             <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
               {selectedRestriction}
+            </p>
+          )}
+
+          {selectedRoute && selectedWarning && !selectedRestriction && (
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              {selectedWarning}
             </p>
           )}
 

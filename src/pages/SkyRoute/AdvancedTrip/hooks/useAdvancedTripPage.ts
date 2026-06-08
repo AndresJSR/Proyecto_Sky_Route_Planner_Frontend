@@ -607,6 +607,15 @@ export function useAdvancedTripPage() {
 
     const hydrateTravelerState = async () => {
       try {
+        /*
+         * Carga siempre el grafo al entrar a Advanced Trip.
+         * Esto permite llenar el Select de origen aunque no exista
+         * un viaje guardado en localStorage.
+         */
+        const graphData = await loadGraphData();
+
+        if (cancelled) return;
+
         const rawState = localStorage.getItem(LAST_TRAVELER_STATE_KEY);
 
         if (!rawState) return;
@@ -618,8 +627,6 @@ export function useAdvancedTripPage() {
         if (cancelled) return;
 
         setEstado(normalizedState);
-
-        const graphData = await loadGraphData();
 
         const recoveredTraveledRoutes = buildTraveledRoutesFromState(
           normalizedState,

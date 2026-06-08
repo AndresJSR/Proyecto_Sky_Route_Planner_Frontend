@@ -1,7 +1,7 @@
 import './AdvancedTripPage.css';
 
-import { useState } from 'react';
-import { Button, Card, Input, Spinner } from '../../../components/ui';
+import { useMemo, useState } from 'react';
+import { Button, Card, Input, Select, Spinner } from '../../../components/ui';
 import { GraphVisualizationPanel } from '../GraphViewer/components/GraphVisualizationPanel';
 import StepActionsPanel from './components/StepActionsPanel';
 import { TripStatePanel } from './components/TripStatePanel';
@@ -37,6 +37,15 @@ export function AdvancedTripPage() {
     reloadNeighbors,
   } = useAdvancedTripPage();
 
+  const originOptions = useMemo(
+    () =>
+      graphAirports.map((airport) => ({
+        value: airport.id,
+        label: `${airport.id} — ${airport.ciudad}, ${airport.pais}`,
+      })),
+    [graphAirports],
+  );
+
   return (
     <main className="sr-page sr-advanced-trip-page">
       <section className="mb-6">
@@ -62,16 +71,23 @@ export function AdvancedTripPage() {
               </p>
             </div>
 
-            {loading && <Spinner size="sm" />}
+            {(loading || graphLoading) && <Spinner size="sm" />}
           </div>
 
           <div className="sr-form-grid">
-            <Input
+            <Select
               label="Origen"
               value={originInput}
               onChange={(event) =>
-                setOriginInput(event.target.value.toUpperCase())
+                setOriginInput(String(event.target.value).toUpperCase())
               }
+              options={originOptions}
+              placeholder={
+                graphLoading
+                  ? 'Cargando aeropuertos...'
+                  : 'Selecciona un aeropuerto de origen'
+              }
+              disabled={graphLoading || originOptions.length === 0}
             />
 
             <Input
@@ -95,6 +111,7 @@ export function AdvancedTripPage() {
                 startTrip(originInput, presupuestoInput, tiempoInput)
               }
               loading={loading}
+              disabled={loading || graphLoading || !originInput}
             >
               Iniciar viaje
             </Button>
