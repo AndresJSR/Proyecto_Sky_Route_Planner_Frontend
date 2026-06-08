@@ -12,7 +12,19 @@ interface GraphVisualizationPanelProps {
   routes: RouteDto[];
   loading: boolean;
   error: string | null;
+
+  /**
+   * Azul:
+   * rutas ya tomadas durante la simulación avanzada.
+   */
+  traveledRoutes?: RouteDto[];
+
+  /**
+   * Verde:
+   * última ruta recorrida o ruta actualmente resaltada.
+   */
   highlightRoute?: RouteDto | null;
+
   onAirportSelect: (airport: AirportSummary | null) => void;
   onRouteSelect: (route: RouteDto | null) => void;
 }
@@ -116,6 +128,7 @@ function getRouteAircraft(route: RouteDto): string[] {
 function isSubsidizedRoute(route: RouteDto): boolean {
   return getRouteCostBase(route) === 0;
 }
+
 function getEstimatedCost(route: RouteDto, aircraft: string): number {
   if (isSubsidizedRoute(route)) {
     return 0;
@@ -160,11 +173,20 @@ function getMinimumEstimatedTime(route: RouteDto): number {
   );
 }
 
+function isSameRoute(routeA: RouteDto, routeB: RouteDto): boolean {
+  return routeA.origen === routeB.origen && routeA.destino === routeB.destino;
+}
+
+function routeExistsInList(route: RouteDto, routeList: RouteDto[]): boolean {
+  return routeList.some((item) => isSameRoute(route, item));
+}
+
 export function GraphVisualizationPanel({
   airports,
   routes,
   loading,
   error,
+  traveledRoutes = [],
   highlightRoute,
   onAirportSelect,
   onRouteSelect,
@@ -206,10 +228,7 @@ export function GraphVisualizationPanel({
           id: `${route.origen}-${route.destino}-${index}`,
           source: route.origen,
           target: route.destino,
-
-          // Peso visible de la arista.
           label: `${formatNumber(distance, 0)} km`,
-
           route,
           distance,
           blocked: Boolean(route.bloqueada),
@@ -288,7 +307,6 @@ export function GraphVisualizationPanel({
             'curve-style': 'bezier',
             'arrow-scale': 1.1,
 
-            // Etiqueta de distancia sobre la arista.
             color: '#e5e7eb',
             'font-size': 9,
             'font-weight': 700,
@@ -306,6 +324,41 @@ export function GraphVisualizationPanel({
             'target-arrow-color': 'rgba(220, 38, 38, 0.95)',
           },
         },
+
+        /**
+         * Azul:
+         * rutas tomadas en la simulación avanzada.
+         */
+        {
+          selector: 'edge.traveled-route',
+          style: {
+            width: 6,
+            'line-color': '#2563eb',
+            'target-arrow-color': '#2563eb',
+            color: '#ffffff',
+            'text-outline-color': '#1e3a8a',
+            'text-outline-width': 3,
+          },
+        },
+
+        /**
+         * Verde:
+         * última ruta recorrida.
+         * Va después de traveled-route para tener prioridad visual.
+         */
+        {
+          selector: 'edge.highlighted',
+          style: {
+            width: 8,
+            'line-color': '#10b981',
+            'target-arrow-color': '#10b981',
+            color: '#ffffff',
+            'text-outline-color': '#065f46',
+            'text-outline-width': 3,
+            'transition-property': 'line-color, width',
+            'transition-duration': '200ms',
+          },
+        },
         {
           selector: 'node:selected',
           style: {
@@ -317,20 +370,6 @@ export function GraphVisualizationPanel({
           selector: 'edge:selected',
           style: {
             width: 7,
-            'line-color': '#2563eb',
-            'target-arrow-color': '#2563eb',
-            color: '#ffffff',
-          },
-        },
-        {
-          selector: 'edge.highlighted',
-          style: {
-            width: 8,
-            'line-color': '#10b981',
-            'target-arrow-color': '#10b981',
-            color: '#ffffff',
-            'transition-property': 'line-color, width',
-            'transition-duration': '200ms',
           },
         },
       ],
@@ -393,22 +432,23 @@ export function GraphVisualizationPanel({
   useEffect(() => {
     if (!cyRef.current || !routes.length) return;
 
-    cyRef.current.edges().removeClass('highlighted').unselect();
+    const cy = cyRef.current;
 
-    if (!highlightRoute) return;
+    cy.edges().removeClass('traveled-route highlighted').unselect();
 
-    cyRef.current
-      .edges()
-      .filter((edge) => {
-        const route = edge.data('route') as RouteDto;
-        return (
-          route.origen === highlightRoute.origen &&
-          route.destino === highlightRoute.destino
-        );
-      })
-      .addClass('highlighted')
-      .select();
-  }, [highlightRoute, routes.length]);
+    cy.edges().forEach((edge) => {
+      const route = edge.data('route') as RouteDto;
+
+      if (routeExistsInList(route, traveledRoutes)) {
+        edge.addClass('traveled-route');
+      }
+
+      if (highlightRoute && isSameRoute(route, highlightRoute)) {
+        edge.addClass('highlighted');
+        edge.select();
+      }
+    });
+  }, [highlightRoute, traveledRoutes, routes.length]);
 
   if (error) {
     return (
@@ -499,6 +539,7 @@ export function GraphVisualizationPanel({
                       {formatNumber(getRouteDistance(popupData.route), 0)} km
                     </strong>
                   </div>
+
                   <div>
                     <small>Estancia mínima</small>
                     <strong>
@@ -567,6 +608,16 @@ export function GraphVisualizationPanel({
           <div className="legend-item">
             <span className="legend-line" />
             <span>Ruta aérea</span>
+          </div>
+
+          <div className="legend-item">
+            <span className="legend-line legend-line--traveled" />
+            <span>Ruta tomada</span>
+          </div>
+
+          <div className="legend-item">
+            <span className="legend-line legend-line--current" />
+            <span>Última ruta</span>
           </div>
         </div>
       </div>

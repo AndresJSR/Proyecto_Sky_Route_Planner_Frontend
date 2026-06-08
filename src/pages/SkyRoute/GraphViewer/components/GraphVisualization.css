@@ -43,7 +43,7 @@
   bottom: 14px;
   z-index: 4;
   display: grid;
-  width: 180px;
+  width: 190px;
   gap: 8px;
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -83,13 +83,32 @@
 }
 
 .legend-line {
-  width: 22px;
-  height: 2px;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
   background: rgba(100, 116, 139, 0.72);
 }
 
 .dark .legend-line {
   background: rgba(203, 213, 225, 0.72);
+}
+
+/* Azul: rutas tomadas durante el viaje */
+.legend-line--traveled,
+.dark .legend-line--traveled {
+  background: #2563eb;
+}
+
+/* Verde: última ruta recorrida */
+.legend-line--current,
+.dark .legend-line--current {
+  background: #10b981;
+}
+
+/* Rojo: ruta bloqueada */
+.legend-line--blocked,
+.dark .legend-line--blocked {
+  background: #dc2626;
 }
 
 /* Popup interno del grafo */
@@ -256,7 +275,7 @@
   }
 
   .graph-legend {
-    width: 160px;
+    width: 170px;
     font-size: 0.75rem;
   }
 }

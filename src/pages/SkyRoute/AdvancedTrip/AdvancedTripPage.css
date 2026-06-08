@@ -1,8 +1,149 @@
-.sr-page { padding: 1rem; }
-.sr-two-columns { display: grid; grid-template-columns: 1fr 420px; gap: 1rem; }
-.sr-form-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-.sr-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
-.sr-panel { padding: 1rem; }
-.sr-panel__header h2 { margin: 0; }
-/* TODO: migrate SkyRoute content here. */
-/* TODO: migrate SkyRoute content here. */
+.sr-advanced-trip-page {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Layout */
+
+.sr-advanced-trip-page .sr-two-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 1rem;
+}
+
+.sr-advanced-trip-page .sr-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.sr-advanced-trip-page .sr-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.sr-advanced-trip-page .sr-panel {
+  padding: 1rem;
+}
+
+.sr-advanced-trip-page .sr-panel__header h2 {
+  margin: 0;
+}
+
+/* Modo oscuro local de Advanced Trip */
+
+.dark .sr-advanced-trip-page .bg-white,
+[data-theme='dark'] .sr-advanced-trip-page .bg-white {
+  background: rgba(15, 23, 42, 0.88) !important;
+}
+
+.dark .sr-advanced-trip-page .bg-violet-50,
+[data-theme='dark'] .sr-advanced-trip-page .bg-violet-50 {
+  background: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark .sr-advanced-trip-page .bg-amber-50,
+[data-theme='dark'] .sr-advanced-trip-page .bg-amber-50 {
+  background: rgba(120, 53, 15, 0.22) !important;
+}
+
+.dark .sr-advanced-trip-page .bg-emerald-50,
+[data-theme='dark'] .sr-advanced-trip-page .bg-emerald-50 {
+  background: rgba(6, 78, 59, 0.28) !important;
+}
+
+.dark .sr-advanced-trip-page .border-slate-200,
+[data-theme='dark'] .sr-advanced-trip-page .border-slate-200 {
+  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+.dark .sr-advanced-trip-page .border-amber-200,
+[data-theme='dark'] .sr-advanced-trip-page .border-amber-200 {
+  border-color: rgba(251, 191, 36, 0.45) !important;
+}
+
+.dark .sr-advanced-trip-page .border-emerald-200,
+[data-theme='dark'] .sr-advanced-trip-page .border-emerald-200 {
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+/* Textos en modo oscuro */
+
+.dark .sr-advanced-trip-page .text-slate-900,
+[data-theme='dark'] .sr-advanced-trip-page .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+.dark .sr-advanced-trip-page .text-slate-600,
+[data-theme='dark'] .sr-advanced-trip-page .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .sr-advanced-trip-page .text-slate-500,
+[data-theme='dark'] .sr-advanced-trip-page .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .sr-advanced-trip-page .text-amber-700,
+[data-theme='dark'] .sr-advanced-trip-page .text-amber-700 {
+  color: #fcd34d !important;
+}
+
+.dark .sr-advanced-trip-page .text-emerald-700,
+[data-theme='dark'] .sr-advanced-trip-page .text-emerald-700 {
+  color: #6ee7b7 !important;
+}
+
+/* Inputs y selects */
+
+.dark .sr-advanced-trip-page input,
+.dark .sr-advanced-trip-page select,
+[data-theme='dark'] .sr-advanced-trip-page input,
+[data-theme='dark'] .sr-advanced-trip-page select {
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #f8fafc !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+}
+
+.dark .sr-advanced-trip-page input::placeholder,
+[data-theme='dark'] .sr-advanced-trip-page input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Paneles */
+
+.dark .sr-advanced-trip-page .sr-panel,
+[data-theme='dark'] .sr-advanced-trip-page .sr-panel {
+  background: rgba(15, 23, 42, 0.82) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.dark .sr-advanced-trip-page .sr-panel__header h2,
+[data-theme='dark'] .sr-advanced-trip-page .sr-panel__header h2 {
+  color: #f8fafc !important;
+}
+
+.dark .sr-advanced-trip-page .sr-panel__header p,
+[data-theme='dark'] .sr-advanced-trip-page .sr-panel__header p {
+  color: #cbd5e1 !important;
+}
+
+/* Responsive */
+
+@media (max-width: 1200px) {
+  .sr-advanced-trip-page .sr-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .sr-advanced-trip-page {
+    padding: 0.75rem;
+  }
+
+  .sr-advanced-trip-page .sr-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

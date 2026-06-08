@@ -16,6 +16,7 @@ import type {
   TravelerState,
   TransportType,
 } from '../../models/skyroute/planner.types';
+import { normalizeTravelerState } from './travelerState';
 
 export type {
   ItineraryAlternative,
@@ -46,6 +47,31 @@ function unwrapApiResponse<T>(response: {
   }
 
   return response.data;
+}
+
+function unwrapTravelerState(response: {
+  ok: boolean;
+  data: TravelerState | null;
+  error: { type: string; message: string } | null;
+}): TravelerState {
+  const data = unwrapApiResponse(response);
+  const normalized = normalizeTravelerState(data);
+
+  if (!normalized) {
+    throw new Error('El backend devolvió un estado de viajero inválido.');
+  }
+
+  return normalized;
+}
+
+function normalizeOutgoingTravelerState(estado: TravelerState): TravelerState {
+  const normalized = normalizeTravelerState(estado);
+
+  if (!normalized) {
+    throw new Error('El estado actual del viajero es inválido.');
+  }
+
+  return normalized;
 }
 
 function mapItinerariesToList(data: ItinerariesData): ItineraryAlternative[] {
@@ -190,7 +216,7 @@ export const plannerRepository = {
       },
     );
 
-    return unwrapApiResponse(response.data);
+    return unwrapTravelerState(response.data);
   },
 
   advanceStep: async (
@@ -201,13 +227,13 @@ export const plannerRepository = {
     const response = await api.post<ApiResponse<TravelerState>>(
       '/planner/advanced/step',
       {
-        estado,
+        estado: normalizeOutgoingTravelerState(estado),
         destino,
         aeronave,
       },
     );
 
-    return unwrapApiResponse(response.data);
+    return unwrapTravelerState(response.data);
   },
 
   getStepRecommendation: async (
@@ -225,7 +251,7 @@ export const plannerRepository = {
         beneficios: string[];
       }>
     >('/planner/recomendacion-paso', {
-      estado,
+      estado: normalizeOutgoingTravelerState(estado),
       criterio,
     });
 
@@ -240,13 +266,13 @@ export const plannerRepository = {
     const response = await api.post<ApiResponse<TravelerState>>(
       '/planner/advanced/job',
       {
-        estado,
+        estado: normalizeOutgoingTravelerState(estado),
         trabajo_nombre: trabajo,
         horas,
       },
     );
 
-    return unwrapApiResponse(response.data);
+    return unwrapTravelerState(response.data);
   },
 
   performActivity: async (
@@ -256,11 +282,11 @@ export const plannerRepository = {
     const response = await api.post<ApiResponse<TravelerState>>(
       '/planner/advanced/activity',
       {
-        estado,
+        estado: normalizeOutgoingTravelerState(estado),
         actividad_nombre: actividad,
       },
     );
 
-    return unwrapApiResponse(response.data);
+    return unwrapTravelerState(response.data);
   },
 };

@@ -23,6 +23,8 @@ interface Props {
 
 type RecommendationCriterion = 'costo' | 'tiempo' | 'destinos';
 
+const MAX_SUBSIDIZED_ROUTE_PERCENTAGE = 0.2;
+
 const AIRCRAFT_RATES: Record<
   string,
   {
@@ -80,6 +82,22 @@ function getNumberValue(source: unknown, keys: string[]): number {
   return 0;
 }
 
+function getStringArrayValue(source: unknown, keys: string[]): string[] {
+  if (!source || typeof source !== 'object') return [];
+
+  const data = source as Record<string, unknown>;
+
+  for (const key of keys) {
+    const value = data[key];
+
+    if (Array.isArray(value)) {
+      return value.filter((item): item is string => typeof item === 'string');
+    }
+  }
+
+  return [];
+}
+
 function getRouteDistance(route: RouteDto): number {
   return getNumberValue(route, ['distanciaKm', 'distancia_km']);
 }
@@ -95,6 +113,14 @@ function isSubsidizedRoute(route: RouteDto): boolean {
 function getRouteAircraft(route: RouteDto): string[] {
   const aircraft = route.aeronaves ?? [];
   return aircraft.filter((item): item is string => typeof item === 'string');
+}
+
+function getVisitedAirports(estado: TravelerState): string[] {
+  return getStringArrayValue(estado, [
+    'destinos_visitados',
+    'destinosVisitados',
+    'visited_airports',
+  ]);
 }
 
 function getEstimatedCost(route: RouteDto, aircraft: string): number {
@@ -188,6 +214,92 @@ function getCleanBenefits(benefits: string[]): string[] {
   });
 }
 
+function getSelectedAircraft(route: RouteDto, selectedAircraft: string | null) {
+  const aircraftOptions = getRouteAircraft(route);
+
+  return selectedAircraft || aircraftOptions[0] || '';
+}
+
+function getSubsidizedRouteRestrictionMessage(
+  route: RouteDto,
+  estado: TravelerState,
+): string | null {
+  if (!isSubsidizedRoute(route)) {
+    return null;
+  }
+
+  const currentTotalDistance = getNumberValue(estado, ['distancia_total']);
+  const currentSubsidizedDistance = getNumberValue(estado, [
+    'distancia_subsidiada',
+  ]);
+
+  const routeDistance = getRouteDistance(route);
+  const newTotalDistance = currentTotalDistance + routeDistance;
+  const newSubsidizedDistance = currentSubsidizedDistance + routeDistance;
+
+  if (newTotalDistance <= 0) {
+    return null;
+  }
+
+  const subsidizedRatio = newSubsidizedDistance / newTotalDistance;
+
+  if (subsidizedRatio > MAX_SUBSIDIZED_ROUTE_PERCENTAGE) {
+    return 'Esta ruta subsidiada supera el límite permitido del 20% de la distancia total del viaje.';
+  }
+
+  return null;
+}
+
+function getAdvanceRestrictionMessage(
+  route: RouteDto,
+  aircraft: string,
+  estado: TravelerState,
+): string | null {
+  if (!aircraft) {
+    return 'Esta ruta no tiene aeronaves disponibles.';
+  }
+
+  if (estado.tiempo_restante_min <= 0) {
+    return 'No hay tiempo disponible para avanzar a otro aeropuerto.';
+  }
+
+  const estimatedTime = getEstimatedTime(route, aircraft);
+  const estimatedCost = getEstimatedCost(route, aircraft);
+
+  if (estimatedTime > estado.tiempo_restante_min) {
+    return 'Tiempo insuficiente para realizar este vuelo.';
+  }
+
+  if (estimatedCost > estado.presupuesto_actual) {
+    return 'Presupuesto insuficiente para realizar este vuelo.';
+  }
+
+  const subsidizedRestriction = getSubsidizedRouteRestrictionMessage(
+    route,
+    estado,
+  );
+
+  if (subsidizedRestriction) {
+    return subsidizedRestriction;
+  }
+
+  const visitedAirports = getVisitedAirports(estado);
+
+  if (visitedAirports.includes(route.destino)) {
+    return 'Este aeropuerto ya fue visitado. Evita repetir escalas.';
+  }
+
+  return null;
+}
+
+function SubsidizedBadge() {
+  return (
+    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+      Subsidiada
+    </span>
+  );
+}
+
 export function StepActionsPanel({
   estado,
   neighbors,
@@ -205,10 +317,36 @@ export function StepActionsPanel({
   const selectedRoute =
     selectedRouteIdx === null ? null : neighbors[selectedRouteIdx] ?? null;
 
+  const selectedRouteAircraft =
+    selectedRoute && estado
+      ? getSelectedAircraft(selectedRoute, selectedAircraft)
+      : '';
+
+  const selectedRestriction =
+    selectedRoute && estado
+      ? getAdvanceRestrictionMessage(
+          selectedRoute,
+          selectedRouteAircraft,
+          estado,
+        )
+      : 'Selecciona una ruta para continuar.';
+
   const recommendedRoute = getRecommendationRoute(recommendation, neighbors);
 
+  const recommendedRestriction =
+    recommendedRoute && estado
+      ? getAdvanceRestrictionMessage(
+          recommendedRoute,
+          getSelectedAircraft(recommendedRoute, null),
+          estado,
+        )
+      : null;
+
   const canAdvance =
-    selectedRoute !== null && getRouteAircraft(selectedRoute).length > 0;
+    selectedRoute !== null &&
+    selectedRouteAircraft.length > 0 &&
+    !selectedRestriction &&
+    !loading;
 
   const handleRecommend = (criterion: RecommendationCriterion) => {
     setRecommendationCriterion(criterion);
@@ -216,10 +354,9 @@ export function StepActionsPanel({
   };
 
   const handleAdvance = () => {
-    if (!selectedRoute) return;
+    if (!selectedRoute || selectedRestriction) return;
 
-    const aircraftOptions = getRouteAircraft(selectedRoute);
-    const aircraft = selectedAircraft || aircraftOptions[0] || '';
+    const aircraft = getSelectedAircraft(selectedRoute, selectedAircraft);
 
     if (!aircraft) return;
 
@@ -239,6 +376,8 @@ export function StepActionsPanel({
     );
   }
 
+  const hasNoTime = estado.tiempo_restante_min <= 0;
+
   return (
     <Card className="sr-panel">
       <div className="sr-panel__header">
@@ -249,17 +388,33 @@ export function StepActionsPanel({
       </div>
 
       <div className="space-y-4">
+        {hasNoTime && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-200">
+            El viajero no tiene tiempo restante. No puede avanzar a otro
+            aeropuerto.
+          </div>
+        )}
+
         <section>
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <Button onClick={() => handleRecommend('costo')}>
+            <Button
+              disabled={hasNoTime}
+              onClick={() => handleRecommend('costo')}
+            >
               Recomendar por costo
             </Button>
 
-            <Button onClick={() => handleRecommend('tiempo')}>
+            <Button
+              disabled={hasNoTime}
+              onClick={() => handleRecommend('tiempo')}
+            >
               Recomendar por tiempo
             </Button>
 
-            <Button onClick={() => handleRecommend('destinos')}>
+            <Button
+              disabled={hasNoTime}
+              onClick={() => handleRecommend('destinos')}
+            >
               Recomendar por destinos
             </Button>
 
@@ -270,38 +425,52 @@ export function StepActionsPanel({
 
           {recommendation && (
             <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
-              <p className="font-semibold text-slate-900 dark:text-white">
-                {getRecommendationTitle(recommendationCriterion)}:{' '}
-                {recommendation.aeropuerto_recomendado}
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold text-slate-900 dark:text-white">
+                  {getRecommendationTitle(recommendationCriterion)}:{' '}
+                  {recommendation.aeropuerto_recomendado}
+                </p>
+
+                {recommendedRoute && isSubsidizedRoute(recommendedRoute) && (
+                  <SubsidizedBadge />
+                )}
+              </div>
 
               {recommendedRoute ? (
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
-                  <li>
-                    Distancia:{' '}
-                    {formatNumber(getRouteDistance(recommendedRoute))} km
-                  </li>
+                <>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                    <li>
+                      Distancia:{' '}
+                      {formatNumber(getRouteDistance(recommendedRoute))} km
+                    </li>
 
-                  <li>
-                    {isSubsidizedRoute(recommendedRoute)
-                      ? 'Ruta subsidiada · costo $0 USD'
-                      : `Costo estimado desde ${formatMoney(
-                          getMinimumEstimatedCost(recommendedRoute),
-                        )}`}
-                  </li>
+                    <li>
+                      {isSubsidizedRoute(recommendedRoute)
+                        ? 'Costo de vuelo $0 USD por subsidio'
+                        : `Costo estimado desde ${formatMoney(
+                            getMinimumEstimatedCost(recommendedRoute),
+                          )}`}
+                    </li>
 
-                  <li>
-                    Tiempo mínimo estimado:{' '}
-                    {formatNumber(getMinimumEstimatedTime(recommendedRoute))}{' '}
-                    min
-                  </li>
+                    <li>
+                      Tiempo mínimo estimado:{' '}
+                      {formatNumber(getMinimumEstimatedTime(recommendedRoute))}{' '}
+                      min
+                    </li>
 
-                  <li>
-                    Aeronaves disponibles:{' '}
-                    {getRouteAircraft(recommendedRoute).join(', ') ||
-                      'No registradas'}
-                  </li>
-                </ul>
+                    <li>
+                      Aeronaves disponibles:{' '}
+                      {getRouteAircraft(recommendedRoute).join(', ') ||
+                        'No registradas'}
+                    </li>
+                  </ul>
+
+                  {recommendedRestriction && (
+                    <p className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      Advertencia: {recommendedRestriction}
+                    </p>
+                  )}
+                </>
               ) : (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
                   {getCleanBenefits(recommendation.beneficios).map(
@@ -332,6 +501,18 @@ export function StepActionsPanel({
                 const distance = getRouteDistance(route);
                 const subsidized = isSubsidizedRoute(route);
 
+                const currentAircraft = isSelected
+                  ? getSelectedAircraft(route, selectedAircraft)
+                  : aircraftOptions[0] || '';
+
+                const restrictionMessage = getAdvanceRestrictionMessage(
+                  route,
+                  currentAircraft,
+                  estado,
+                );
+
+                const isDisabled = Boolean(restrictionMessage) || loading;
+
                 return (
                   <div
                     key={`${route.origen}-${route.destino}-${idx}`}
@@ -342,16 +523,26 @@ export function StepActionsPanel({
                     }`}
                   >
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">
-                        {route.origen} → {route.destino}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold text-slate-900 dark:text-white">
+                          {route.origen} → {route.destino}
+                        </p>
+
+                        {subsidized && <SubsidizedBadge />}
+                      </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400">
                         {formatNumber(distance)} km ·{' '}
                         {subsidized
-                          ? 'ruta subsidiada · costo $0 USD'
+                          ? 'costo de vuelo $0 USD por subsidio'
                           : 'costo calculado por aeronave'}
                       </p>
+
+                      {restrictionMessage && (
+                        <p className="mt-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                          {restrictionMessage}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -370,7 +561,7 @@ export function StepActionsPanel({
                             ? buildAircraftLabel(route, aircraftOptions[0])
                             : 'Sin aeronaves'
                         }
-                        disabled={aircraftOptions.length === 0}
+                        disabled={aircraftOptions.length === 0 || hasNoTime}
                       />
 
                       <Button
@@ -378,7 +569,7 @@ export function StepActionsPanel({
                           setSelectedRouteIdx(idx);
                           setSelectedAircraft(aircraftOptions[0] ?? '');
                         }}
-                        disabled={aircraftOptions.length === 0}
+                        disabled={isDisabled}
                       >
                         Seleccionar
                       </Button>
@@ -390,14 +581,22 @@ export function StepActionsPanel({
           )}
         </section>
 
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleAdvance}
-            loading={loading}
-            disabled={!canAdvance}
-          >
-            Avanzar
-          </Button>
+        <div className="flex flex-col gap-2">
+          {selectedRoute && selectedRestriction && (
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              {selectedRestriction}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleAdvance}
+              loading={loading}
+              disabled={!canAdvance}
+            >
+              Avanzar
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
