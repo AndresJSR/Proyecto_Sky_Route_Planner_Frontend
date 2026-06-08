@@ -279,3 +279,73 @@
     font-size: 0.75rem;
   }
 }
+/* Popup compacto dentro del grafo */
+
+.graph-popup {
+  top: 12px;
+  left: 12px;
+  width: min(280px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  padding: 12px;
+  overflow-y: auto;
+  border-radius: 14px;
+}
+
+.graph-popup__close {
+  top: 6px;
+  right: 8px;
+  font-size: 1.1rem;
+}
+
+.graph-popup__eyebrow {
+  margin-bottom: 2px;
+  font-size: 0.65rem;
+}
+
+.graph-popup h3 {
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.graph-popup p {
+  margin: 4px 0 8px;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.graph-popup__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.graph-popup__grid div {
+  min-width: 0;
+  padding: 7px;
+  border-radius: 10px;
+}
+
+.graph-popup__grid small {
+  margin-bottom: 1px;
+  font-size: 0.62rem;
+  line-height: 1.1;
+}
+
+.graph-popup__grid strong {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+/* En pantallas pequeñas, mantenerlo legible */
+@media (max-width: 768px) {
+  .graph-popup {
+    width: min(250px, calc(100% - 24px));
+  }
+
+  .graph-popup__grid {
+    grid-template-columns: 1fr;
+  }
+}
