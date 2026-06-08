@@ -7,15 +7,26 @@
 
 .sr-advanced-trip-page .sr-two-columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
   gap: 1rem;
 }
 
 .sr-advanced-trip-page .sr-form-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
 }
+
+.sr-advanced-trip-page .sr-panel {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.sr-advanced-trip-page .sr-panel__header h2 {
+  margin: 0;
+}
+
+/* Métricas del viajero */
 
 .sr-advanced-trip-page .sr-metrics-grid {
   display: grid;
@@ -24,12 +35,26 @@
   margin-top: 1rem;
 }
 
-.sr-advanced-trip-page .sr-panel {
-  padding: 1rem;
+.sr-advanced-trip-page .sr-metrics-grid > div {
+  min-width: 0;
+  overflow: hidden;
 }
 
-.sr-advanced-trip-page .sr-panel__header h2 {
-  margin: 0;
+.sr-advanced-trip-page .sr-metrics-grid span {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.sr-advanced-trip-page .sr-metrics-grid strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.15;
+  font-size: clamp(1rem, 1.4vw, 1.35rem);
 }
 
 /* Modo oscuro local de Advanced Trip */
@@ -98,6 +123,11 @@
 
 /* Inputs y selects */
 
+.sr-advanced-trip-page input,
+.sr-advanced-trip-page select {
+  min-width: 0;
+}
+
 .dark .sr-advanced-trip-page input,
 .dark .sr-advanced-trip-page select,
 [data-theme='dark'] .sr-advanced-trip-page input,
@@ -105,6 +135,12 @@
   background: rgba(15, 23, 42, 0.9) !important;
   color: #f8fafc !important;
   border-color: rgba(148, 163, 184, 0.34) !important;
+}
+
+.dark .sr-advanced-trip-page option,
+[data-theme='dark'] .sr-advanced-trip-page option {
+  background: #0f172a !important;
+  color: #f8fafc !important;
 }
 
 .dark .sr-advanced-trip-page input::placeholder,
@@ -130,11 +166,38 @@
   color: #cbd5e1 !important;
 }
 
+/* Tarjetas internas */
+
+.sr-advanced-trip-page .rounded-2xl,
+.sr-advanced-trip-page .rounded-3xl {
+  min-width: 0;
+}
+
+.sr-advanced-trip-page p,
+.sr-advanced-trip-page strong,
+.sr-advanced-trip-page span {
+  overflow-wrap: anywhere;
+}
+
 /* Responsive */
+
+@media (max-width: 1400px) {
+  .sr-advanced-trip-page .sr-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sr-advanced-trip-page .sr-metrics-grid strong {
+    font-size: 1.35rem;
+  }
+}
 
 @media (max-width: 1200px) {
   .sr-advanced-trip-page .sr-two-columns {
     grid-template-columns: 1fr;
+  }
+
+  .sr-advanced-trip-page .sr-metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

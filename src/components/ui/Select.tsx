@@ -1,47 +1,68 @@
 import type { ChangeEvent, SelectHTMLAttributes } from 'react';
 
-interface SelectOption {
+export interface SelectOption {
   value: string | number;
   label: string;
 }
 
-interface SelectProps
-  extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
+export interface SelectProps
+  extends Omit<
+    SelectHTMLAttributes<HTMLSelectElement>,
+    'children' | 'value' | 'onChange'
+  > {
   label?: string;
   options: SelectOption[];
-  error?: string;
-  placeholder?: string;
+  value?: string | number | readonly string[];
   onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
+  placeholder?: string;
+  error?: string;
+  disabled?: boolean;
+  multiple?: boolean;
+  className?: string;
 }
 
 export function Select({
   label,
   options,
+  value,
+  onChange,
+  placeholder,
   error,
   disabled = false,
+  multiple = false,
   className = '',
-  placeholder,
   ...props
 }: SelectProps) {
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="mb-2.5 block text-sm font-medium text-black dark:text-white">
+        <label className="mb-2 block text-sm font-medium text-slate-900 dark:text-white">
           {label}
         </label>
       )}
 
       <select
+        value={value}
+        onChange={onChange}
         disabled={disabled}
-        className={`w-full rounded-lg border bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-not-allowed disabled:bg-whiter dark:bg-form-input dark:text-white ${
+        multiple={multiple}
+        className={`w-full rounded-lg border px-4 py-2 text-slate-900 outline-none transition-all duration-200 focus:ring-2 focus:ring-offset-2 dark:text-white ${
           error
-            ? 'border-danger focus:border-danger'
-            : 'border-stroke dark:border-form-strokedark'
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700'
+        } ${
+          disabled
+            ? 'cursor-not-allowed bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+            : 'bg-white dark:bg-slate-950'
         }`}
         {...props}
       >
         {placeholder && (
-          <option value="" disabled>
+          <option
+            value=""
+            disabled
+            className="bg-white text-slate-900 dark:bg-slate-950 dark:text-white"
+          >
             {placeholder}
           </option>
         )}
@@ -50,14 +71,14 @@ export function Select({
           <option
             key={option.value}
             value={option.value}
-            className="text-black"
+            className="bg-white text-slate-900 dark:bg-slate-950 dark:text-white"
           >
             {option.label}
           </option>
         ))}
       </select>
 
-      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

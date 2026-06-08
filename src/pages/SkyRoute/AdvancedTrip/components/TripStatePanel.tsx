@@ -10,6 +10,11 @@ interface Props {
   onPerformActivity: (activityName: string) => Promise<void> | void;
 }
 
+interface MetricCardProps {
+  label: string;
+  value: string;
+}
+
 const JOB_TRIGGER_PERCENTAGE = 0.35;
 
 const numberFormatter = new Intl.NumberFormat('es-CO', {
@@ -88,6 +93,23 @@ function getJobRestrictionMessage(
   return null;
 }
 
+function MetricCard({ label, value }: MetricCardProps) {
+  return (
+    <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
+      <span className="block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        {label}
+      </span>
+
+      <strong
+        title={value}
+        className="mt-3 block max-w-full break-words text-xl font-semibold leading-tight text-slate-900 dark:text-white sm:text-2xl"
+      >
+        {value}
+      </strong>
+    </div>
+  );
+}
+
 export function TripStatePanel({
   estado,
   airportDetail,
@@ -114,11 +136,6 @@ export function TripStatePanel({
 
   const hasNoTime = estado.tiempo_restante_min <= 0;
   const jobThreshold = estado.presupuesto_inicial * JOB_TRIGGER_PERCENTAGE;
-
-  /**
-   * El backend permite trabajar cuando:
-   * presupuesto_actual <= 35% del presupuesto inicial.
-   */
   const isBelowJobThreshold = estado.presupuesto_actual <= jobThreshold;
   const canShowJobs = isBelowJobThreshold && !hasNoTime;
 
@@ -137,35 +154,20 @@ export function TripStatePanel({
       </div>
 
       <div className="sr-metrics-grid">
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Aeropuerto actual
-          </span>
+        <MetricCard
+          label="Aeropuerto actual"
+          value={estado.aeropuerto_actual}
+        />
 
-          <strong className="mt-3 block text-2xl font-semibold text-slate-900 dark:text-white">
-            {estado.aeropuerto_actual}
-          </strong>
-        </div>
+        <MetricCard
+          label="Presupuesto actual"
+          value={formatMoney(estado.presupuesto_actual)}
+        />
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Presupuesto actual
-          </span>
-
-          <strong className="mt-3 block text-2xl font-semibold text-slate-900 dark:text-white">
-            {formatMoney(estado.presupuesto_actual)}
-          </strong>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Tiempo restante
-          </span>
-
-          <strong className="mt-3 block text-2xl font-semibold text-slate-900 dark:text-white">
-            {formatMinutes(estado.tiempo_restante_min)}
-          </strong>
-        </div>
+        <MetricCard
+          label="Tiempo restante"
+          value={formatMinutes(estado.tiempo_restante_min)}
+        />
       </div>
 
       {hasNoTime && (
@@ -193,16 +195,16 @@ export function TripStatePanel({
                       menor o igual al 35% del presupuesto inicial.
                     </p>
 
-                    <p className="mt-2 font-semibold text-slate-900 dark:text-white">
+                    <p className="mt-2 break-words font-semibold text-slate-900 dark:text-white">
                       Presupuesto actual:{' '}
                       {formatMoney(estado.presupuesto_actual)}
                     </p>
 
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                    <p className="break-words font-semibold text-slate-900 dark:text-white">
                       Umbral de trabajo: {formatMoney(jobThreshold)}
                     </p>
 
-                    <p className="mt-2">
+                    <p className="mt-2 break-words">
                       Faltan por gastar:{' '}
                       <strong>{formatMoney(amountUntilJobsEnabled)}</strong>
                     </p>
@@ -236,12 +238,12 @@ export function TripStatePanel({
                       className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
                     >
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white">
+                        <div className="min-w-0">
+                          <p className="break-words font-semibold text-slate-900 dark:text-white">
                             {job.nombre}
                           </p>
 
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                          <p className="break-words text-xs text-slate-500 dark:text-slate-400">
                             {formatMoney(job.tarifaHora)}/h · máx.{' '}
                             {formatNumber(job.maxHoras)} h
                           </p>
@@ -253,7 +255,7 @@ export function TripStatePanel({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-2">
                           <input
                             type="number"
                             min={1}
@@ -334,12 +336,12 @@ export function TripStatePanel({
                       key={activity.nombre}
                       className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                      <div className="min-w-0">
+                        <p className="break-words font-semibold text-slate-900 dark:text-white">
                           {activity.nombre}
                         </p>
 
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="break-words text-xs text-slate-500 dark:text-slate-400">
                           {formatMinutes(activity.duracionMin)} ·{' '}
                           {formatMoney(activity.costoUSD)}
                         </p>
@@ -351,31 +353,35 @@ export function TripStatePanel({
                         )}
                       </div>
 
-                      <Button
-                        disabled={isDisabled}
-                        onClick={async () => {
-                          if (restrictionMessage) {
-                            setActionError(restrictionMessage);
-                            return;
-                          }
+                      <div className="shrink-0">
+                        <Button
+                          disabled={isDisabled}
+                          onClick={async () => {
+                            if (restrictionMessage) {
+                              setActionError(restrictionMessage);
+                              return;
+                            }
 
-                          setActionError(null);
+                            setActionError(null);
 
-                          try {
-                            setActionLoading(true);
-                            await onPerformActivity(activity.nombre);
-                          } catch (err) {
-                            setActionError(
-                              err instanceof Error ? err.message : String(err),
-                            );
-                          } finally {
-                            setActionLoading(false);
-                          }
-                        }}
-                        loading={actionLoading}
-                      >
-                        Realizar
-                      </Button>
+                            try {
+                              setActionLoading(true);
+                              await onPerformActivity(activity.nombre);
+                            } catch (err) {
+                              setActionError(
+                                err instanceof Error
+                                  ? err.message
+                                  : String(err),
+                              );
+                            } finally {
+                              setActionLoading(false);
+                            }
+                          }}
+                          loading={actionLoading}
+                        >
+                          Realizar
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}

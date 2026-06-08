@@ -294,3 +294,26 @@
     min-height: 520px;
   }
 }
+/* Advanced Trip - métricas compactas */
+
+.sr-advanced-trip-page .sr-metrics-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sr-advanced-trip-page .sr-metrics-grid > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sr-advanced-trip-page .sr-metrics-grid strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+@media (max-width: 1280px) {
+  .sr-advanced-trip-page .sr-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

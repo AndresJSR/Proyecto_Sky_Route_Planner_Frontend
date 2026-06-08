@@ -3,5 +3,6 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { Input } from './Input';
 export { Select } from './Select';
+export type { SelectOption, SelectProps } from './Select';
 export { Spinner } from './Spinner';
 export { Table } from './Table';
