@@ -5,6 +5,7 @@ import type {
   AirportSummary,
   RouteDto,
 } from '../../../../models/skyroute/graph.types';
+import { useTravelAnimation } from '../hooks/useTravelAnimation';
 import './GraphVisualization.css';
 
 interface GraphVisualizationPanelProps {
@@ -24,6 +25,12 @@ interface GraphVisualizationPanelProps {
    * última ruta recorrida o ruta actualmente resaltada.
    */
   highlightRoute?: RouteDto | null;
+
+  /**
+   * Activa la animación visual del viajero.
+   * Se usa principalmente en AdvancedTrip.
+   */
+  showTravelAnimation?: boolean;
 
   onAirportSelect: (airport: AirportSummary | null) => void;
   onRouteSelect: (route: RouteDto | null) => void;
@@ -188,6 +195,7 @@ export function GraphVisualizationPanel({
   error,
   traveledRoutes = [],
   highlightRoute,
+  showTravelAnimation = false,
   onAirportSelect,
   onRouteSelect,
 }: GraphVisualizationPanelProps) {
@@ -297,6 +305,24 @@ export function GraphVisualizationPanel({
           },
         },
         {
+          selector: 'node.traveler-marker',
+          style: {
+            label: 'data(label)',
+            width: 30,
+            height: 30,
+            'background-color': '#10b981',
+            'border-color': '#ffffff',
+            'border-width': 3,
+            color: '#ffffff',
+            'font-size': 18,
+            'font-weight': 900,
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'text-outline-width': 0,
+            'z-index': 999,
+          },
+        },
+        {
           selector: 'edge',
           style: {
             label: 'data(label)',
@@ -324,11 +350,6 @@ export function GraphVisualizationPanel({
             'target-arrow-color': 'rgba(220, 38, 38, 0.95)',
           },
         },
-
-        /**
-         * Azul:
-         * rutas tomadas en la simulación avanzada.
-         */
         {
           selector: 'edge.traveled-route',
           style: {
@@ -340,12 +361,6 @@ export function GraphVisualizationPanel({
             'text-outline-width': 3,
           },
         },
-
-        /**
-         * Verde:
-         * última ruta recorrida.
-         * Va después de traveled-route para tener prioridad visual.
-         */
         {
           selector: 'edge.highlighted',
           style: {
@@ -449,6 +464,13 @@ export function GraphVisualizationPanel({
       }
     });
   }, [highlightRoute, traveledRoutes, routes.length]);
+
+  useTravelAnimation({
+    cyRef,
+    highlightRoute,
+    traveledRoutesCount: traveledRoutes.length,
+    enabled: showTravelAnimation,
+  });
 
   if (error) {
     return (

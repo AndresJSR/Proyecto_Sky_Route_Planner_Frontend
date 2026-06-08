@@ -1,16 +1,86 @@
 import './AdvancedTripPage.css';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Button, Card, Input, Select, Spinner } from '../../../components/ui';
 import { GraphVisualizationPanel } from '../GraphViewer/components/GraphVisualizationPanel';
 import StepActionsPanel from './components/StepActionsPanel';
 import { TripStatePanel } from './components/TripStatePanel';
 import { useAdvancedTripPage } from './hooks/useAdvancedTripPage';
 
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+const GRAPH_SCROLL_OFFSET_PX = 88;
+const GRAPH_SCROLL_EXTRA_DOWN_PX = 320;
+const WAIT_BEFORE_ADVANCE_MS = 2500;
+
+function getScrollableParent(element: HTMLElement | null): HTMLElement {
+  let parent = element?.parentElement ?? null;
+
+  while (parent) {
+    const style = window.getComputedStyle(parent);
+    const canScroll =
+      style.overflowY === 'auto' ||
+      style.overflowY === 'scroll' ||
+      style.overflow === 'auto' ||
+      style.overflow === 'scroll';
+
+    if (canScroll && parent.scrollHeight > parent.clientHeight) {
+      return parent;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return document.scrollingElement as HTMLElement;
+}
+
+function scrollToGraphSection(element: HTMLElement | null): void {
+  if (!element) return;
+
+  const scrollParent = getScrollableParent(element);
+
+  if (scrollParent === document.scrollingElement) {
+    const targetTop =
+      element.getBoundingClientRect().top +
+      window.scrollY -
+      GRAPH_SCROLL_OFFSET_PX +
+      GRAPH_SCROLL_EXTRA_DOWN_PX;
+
+    window.scrollTo({
+      top: targetTop,
+      behavior: 'auto',
+    });
+
+    return;
+  }
+
+  const parentRect = scrollParent.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+
+  const targetTop =
+    scrollParent.scrollTop +
+    elementRect.top -
+    parentRect.top -
+    GRAPH_SCROLL_OFFSET_PX +
+    GRAPH_SCROLL_EXTRA_DOWN_PX;
+
+  scrollParent.scrollTo({
+    top: targetTop,
+    behavior: 'auto',
+  });
+}
+
 export function AdvancedTripPage() {
   const [originInput, setOriginInput] = useState('BOG');
   const [presupuestoInput, setPresupuestoInput] = useState(700);
   const [tiempoInput, setTiempoInput] = useState(120);
+  const [advanceDelayLoading, setAdvanceDelayLoading] = useState(false);
+
+  const graphSectionRef = useRef<HTMLElement | null>(null);
 
   const {
     estado,
@@ -45,6 +115,25 @@ export function AdvancedTripPage() {
       })),
     [graphAirports],
   );
+
+  const isAdvancing = actionLoading || advanceDelayLoading;
+
+  async function handleAdvanceWithGraphFocus(
+    destino: string,
+    aeronave: string,
+  ) {
+    try {
+      setAdvanceDelayLoading(true);
+
+      scrollToGraphSection(graphSectionRef.current);
+
+      await wait(WAIT_BEFORE_ADVANCE_MS);
+
+      await advanceTo(destino, aeronave);
+    } finally {
+      setAdvanceDelayLoading(false);
+    }
+  }
 
   return (
     <main className="sr-page sr-advanced-trip-page">
@@ -132,14 +221,14 @@ export function AdvancedTripPage() {
           neighbors={neighbors}
           airportDetail={airportDetail}
           recommendation={recommendation}
-          loading={actionLoading}
+          loading={isAdvancing}
           onRecommend={getRecommendation}
-          onAdvance={advanceTo}
+          onAdvance={handleAdvanceWithGraphFocus}
           onReloadNeighbors={reloadNeighbors}
         />
       </section>
 
-      <section className="mt-6">
+      <section ref={graphSectionRef} className="mt-6">
         <GraphVisualizationPanel
           airports={graphAirports}
           routes={graphRoutes}
@@ -147,6 +236,7 @@ export function AdvancedTripPage() {
           error={graphError}
           traveledRoutes={traveledRoutes}
           highlightRoute={lastTraveledRoute ?? highlightRoute}
+          showTravelAnimation
           onAirportSelect={() => undefined}
           onRouteSelect={() => undefined}
         />
