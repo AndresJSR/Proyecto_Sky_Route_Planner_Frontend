@@ -44,6 +44,13 @@ function getSafeHours(value: number, maxHours: number): number {
   return Math.min(value, maxHours);
 }
 
+function getAmountUntilJobsEnabled(
+  currentBudget: number,
+  jobThreshold: number,
+): number {
+  return Math.max(0, currentBudget - jobThreshold);
+}
+
 function getActivityRestrictionMessage(
   activityDurationMin: number,
   activityCost: number,
@@ -105,11 +112,20 @@ export function TripStatePanel({
     );
   }
 
-  const jobThreshold = estado.presupuesto_inicial * JOB_TRIGGER_PERCENTAGE;
-  const canShowJobs =
-    estado.presupuesto_actual < jobThreshold && estado.tiempo_restante_min > 0;
-
   const hasNoTime = estado.tiempo_restante_min <= 0;
+  const jobThreshold = estado.presupuesto_inicial * JOB_TRIGGER_PERCENTAGE;
+
+  /**
+   * El backend permite trabajar cuando:
+   * presupuesto_actual <= 35% del presupuesto inicial.
+   */
+  const isBelowJobThreshold = estado.presupuesto_actual <= jobThreshold;
+  const canShowJobs = isBelowJobThreshold && !hasNoTime;
+
+  const amountUntilJobsEnabled = getAmountUntilJobsEnabled(
+    estado.presupuesto_actual,
+    jobThreshold,
+  );
 
   return (
     <Card className="sr-panel">
@@ -168,15 +184,35 @@ export function TripStatePanel({
 
             {!canShowJobs ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                {hasNoTime
-                  ? 'No puedes aceptar trabajos porque no queda tiempo disponible.'
-                  : `Los trabajos se habilitan cuando el presupuesto baja del 35% del presupuesto inicial. Umbral actual: ${formatMoney(
-                      jobThreshold,
-                    )}.`}
+                {hasNoTime ? (
+                  'No puedes aceptar trabajos porque no queda tiempo disponible.'
+                ) : (
+                  <>
+                    <p>
+                      Los trabajos se habilitan cuando el presupuesto actual sea
+                      menor o igual al 35% del presupuesto inicial.
+                    </p>
+
+                    <p className="mt-2 font-semibold text-slate-900 dark:text-white">
+                      Presupuesto actual:{' '}
+                      {formatMoney(estado.presupuesto_actual)}
+                    </p>
+
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      Umbral de trabajo: {formatMoney(jobThreshold)}
+                    </p>
+
+                    <p className="mt-2">
+                      Faltan por gastar:{' '}
+                      <strong>{formatMoney(amountUntilJobsEnabled)}</strong>
+                    </p>
+                  </>
+                )}
               </div>
             ) : airportDetail.trabajos.length === 0 ? (
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                No hay trabajos disponibles.
+                El presupuesto ya está por debajo del umbral, pero este
+                aeropuerto no tiene trabajos disponibles.
               </p>
             ) : (
               <div className="grid gap-2">
