@@ -3,8 +3,10 @@ import type { AirportDetail, AirportSummary, RouteDto } from '../../../../models
 import type { TravelerState } from '../../../../models/skyroute/planner.types';
 import { graphRepository } from '../../../../services/skyroute/graphRepository';
 import { plannerRepository } from '../../../../services/skyroute/plannerRepository';
-
-const LAST_TRAVELER_STATE_KEY = 'skyroute:last-traveler-state';
+import {
+    LAST_TRAVELER_STATE_KEY,
+    normalizeTravelerState,
+} from '../../../../services/skyroute/travelerState';
 
 export function useAdvancedTripPage() {
   const [estado, setEstado] = useState<TravelerState | null>(null);
@@ -46,7 +48,7 @@ export function useAdvancedTripPage() {
       await loadGraphData();
 
       const result = await plannerRepository.initializeTrip(origen.trim().toUpperCase(), presupuesto, tiempoHoras);
-      setEstado(result);
+        setEstado(normalizeTravelerState(result) ?? result);
 
       // load neighbors and airport detail
       const [routes, detail] = await Promise.all([
@@ -137,7 +139,7 @@ export function useAdvancedTripPage() {
     try {
       setActionLoading(true);
       const updatedState = await plannerRepository.advanceStep(estado, destino, aeronave);
-      setEstado(updatedState);
+        setEstado(normalizeTravelerState(updatedState) ?? updatedState);
       setHighlightRoute(neighbors.find((route) => route.destino === destino) ?? null);
 
       // refresh neighbors and airport detail
@@ -166,16 +168,17 @@ export function useAdvancedTripPage() {
         if (!rawState) return;
 
         const parsedState = JSON.parse(rawState) as TravelerState;
-        if (!parsedState || !parsedState.aeropuerto_actual) return;
+          const normalizedState = normalizeTravelerState(parsedState);
+          if (!normalizedState) return;
 
         if (cancelled) return;
-        setEstado(parsedState);
+          setEstado(normalizedState);
 
         await loadGraphData();
 
         const [routes, detail] = await Promise.all([
-          graphRepository.getRoutesFrom(parsedState.aeropuerto_actual, true),
-          graphRepository.getAirportInfo(parsedState.aeropuerto_actual),
+            graphRepository.getRoutesFrom(normalizedState.aeropuerto_actual, true),
+            graphRepository.getAirportInfo(normalizedState.aeropuerto_actual),
         ]);
 
         if (cancelled) return;
@@ -213,7 +216,7 @@ export function useAdvancedTripPage() {
     // Try to persist on backend first; if it fails, update local state as fallback
     try {
       const updated = await plannerRepository.acceptJob(estado, jobName, hours);
-      setEstado(updated);
+      setEstado(normalizeTravelerState(updated) ?? updated);
       return;
     } catch (err) {
       console.warn('acceptJob failed, falling back to local update', err);
@@ -232,7 +235,7 @@ export function useAdvancedTripPage() {
       ganancia_total: (estado.ganancia_total || 0) + pago,
     } as TravelerState;
 
-    setEstado(updated);
+      setEstado(normalizeTravelerState(updated) ?? updated);
   }, [estado, airportDetail]);
 
   const performLocalActivity = useCallback(async (activityName: string) => {
