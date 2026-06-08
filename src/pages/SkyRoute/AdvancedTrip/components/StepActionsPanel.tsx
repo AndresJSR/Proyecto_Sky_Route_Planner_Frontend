@@ -618,8 +618,15 @@ export function StepActionsPanel({
 
                       <Button
                         onClick={() => {
+                          const aircraftToUse =
+                            isSelected &&
+                            selectedAircraft &&
+                            aircraftOptions.includes(selectedAircraft)
+                              ? selectedAircraft
+                              : aircraftOptions[0] ?? '';
+
                           setSelectedRouteIdx(idx);
-                          setSelectedAircraft(aircraftOptions[0] ?? '');
+                          setSelectedAircraft(aircraftToUse);
                         }}
                         disabled={isDisabled}
                       >

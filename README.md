@@ -209,7 +209,8 @@
 │   │       │   ├── GraphViewerPage.css
 │   │       │   ├── GraphViewerPage.tsx
 │   │       │   ├── hooks
-│   │       │   │   └── useGraphViewer.ts
+│   │       │   │   ├── useGraphViewer.ts
+│   │       │   │   └── useTravelAnimation.ts
 │   │       │   └── index.ts
 │   │       ├── index.ts
 │   │       ├── InterruptionHandler
@@ -239,7 +240,8 @@
 │   │       ├── interruptionRepository.ts
 │   │       ├── interruptionService.ts
 │   │       ├── plannerRepository.ts
-│   │       └── reportRepository.ts
+│   │       ├── reportRepository.ts
+│   │       └── travelerState.ts
 │   ├── storage
 │   │   ├── LocalStorageProvider.tsx
 │   │   └── StorageProvider.tsx
@@ -249,4 +251,4 @@
 ├── tsconfig.node.json
 └── vite.config.js
 
-46 directories, 203 files
+46 directories, 205 files
